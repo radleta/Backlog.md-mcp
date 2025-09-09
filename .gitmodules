@@ -1,0 +1,3 @@
+[submodule "Backlog.md"]
+	path = Backlog.md
+	url = git@github.com:MrLesk/Backlog.md.git
