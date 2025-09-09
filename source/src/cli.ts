@@ -33,7 +33,10 @@ program
 	.option('-p, --port <port>', 'Port for HTTP transport', '3000')
 	.option('-v, --verbose', 'Enable verbose output')
 	.action((options) => {
-		console.log('Starting Backlog.md MCP server...');
+		// Don't log to stdout when using STDIO transport as it interferes with MCP protocol
+		if (options.transport !== 'stdio') {
+			console.log('Starting Backlog.md MCP server...');
+		}
 		
 		const serverPath = path.join(__dirname, 'server.js');
 		const args: string[] = [];

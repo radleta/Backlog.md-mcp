@@ -426,7 +426,9 @@ async function main() {
 }
 
 // Only run main if this is the entry point
-if (import.meta.url === `file://${process.argv[1]}`) {
+// For ES modules, check if this file is being run directly
+const isMainModule = process.argv[1] && import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/').replace(/^C:/, 'C:')}`;
+if (isMainModule) {
 	main().catch((error) => {
 		console.error("Server error:", error);
 		process.exit(1);
