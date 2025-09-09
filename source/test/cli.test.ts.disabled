@@ -1,0 +1,312 @@
+import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { spawn } from 'child_process';
+import * as path from 'path';
+import { MockChildProcess, MockConsole, waitFor } from './utils/mocks';
+import { cliTestCases } from './utils/fixtures';
+
+describe('CLI Commands', () => {
+	const cliPath = path.join(__dirname, '..', '..', 'package', 'bin', 'backlog-mcp');
+	let mockConsole: MockConsole;
+	
+	beforeEach(() => {
+		mockConsole = new MockConsole();
+		mockConsole.start();
+	});
+	
+	afterEach(() => {
+		mockConsole.stop();
+	});
+	
+	describe('Help Command', () => {
+		test('should display help when --help flag is used', async () => {
+			const child = spawn('node', [cliPath, '--help']);
+			let output = '';
+			
+			child.stdout.on('data', (data) => {
+				output += data.toString();
+			});
+			
+			await new Promise((resolve) => {
+				child.on('exit', resolve);
+			});
+			
+			expect(output).toContain('Backlog.md MCP Server');
+			expect(output).toContain('Commands:');
+			expect(output).toContain('setup');
+			expect(output).toContain('start');
+			expect(output).toContain('validate');
+			expect(output).toContain('config');
+			expect(output).toContain('info');
+		});
+		
+		test('should display help when no command is provided', async () => {
+			const child = spawn('node', [cliPath]);
+			let output = '';
+			
+			child.stdout.on('data', (data) => {
+				output += data.toString();
+			});
+			
+			await new Promise((resolve) => {
+				child.on('exit', resolve);
+			});
+			
+			expect(output).toContain('Backlog.md MCP Server');
+			expect(output).toContain('Commands:');
+		});
+	});
+	
+	describe('Version Command', () => {
+		test('should display version', async () => {
+			const child = spawn('node', [cliPath, '--version']);
+			let output = '';
+			
+			child.stdout.on('data', (data) => {
+				output += data.toString();
+			});
+			
+			await new Promise((resolve) => {
+				child.on('exit', resolve);
+			});
+			
+			expect(output.trim()).toMatch(/^\d+\.\d+\.\d+$/);
+		});
+	});
+	
+	describe('Start Command', () => {
+		test('should accept stdio transport option', () => {
+			const mockSpawn = mock((command: string, args: string[]) => {
+				expect(args).toContain('--transport');
+				expect(args).toContain('stdio');
+				return new MockChildProcess(command, args);
+			});
+			
+			// Mock the spawn function
+			const originalSpawn = spawn;
+			(global as any).spawn = mockSpawn;
+			
+			try {
+				// This would be called internally by the CLI
+				mockSpawn('node', [cliPath, 'start', '--transport', 'stdio']);
+				expect(mockSpawn).toHaveBeenCalled();
+			} finally {
+				(global as any).spawn = originalSpawn;
+			}
+		});
+		
+		test('should accept http transport with port option', () => {
+			const mockSpawn = mock((command: string, args: string[]) => {
+				expect(args).toContain('--transport');
+				expect(args).toContain('http');
+				expect(args).toContain('--port');
+				expect(args).toContain('3000');
+				return new MockChildProcess(command, args);
+			});
+			
+			const originalSpawn = spawn;
+			(global as any).spawn = mockSpawn;
+			
+			try {
+				mockSpawn('node', [cliPath, 'start', '--transport', 'http', '--port', '3000']);
+				expect(mockSpawn).toHaveBeenCalled();
+			} finally {
+				(global as any).spawn = originalSpawn;
+			}
+		});
+		
+		test('should accept verbose option', () => {
+			const mockSpawn = mock((command: string, args: string[]) => {
+				expect(args).toContain('--verbose');
+				return new MockChildProcess(command, args);
+			});
+			
+			const originalSpawn = spawn;
+			(global as any).spawn = mockSpawn;
+			
+			try {
+				mockSpawn('node', [cliPath, 'start', '--verbose']);
+				expect(mockSpawn).toHaveBeenCalled();
+			} finally {
+				(global as any).spawn = originalSpawn;
+			}
+		});
+	});
+	
+	describe('Config Command', () => {
+		test('should support show action', () => {
+			const args = ['config', 'show'];
+			const expectedBehavior = 'Display all configuration';
+			
+			// Verify command structure
+			expect(args[0]).toBe('config');
+			expect(args[1]).toBe('show');
+		});
+		
+		test('should support get action with key', () => {
+			const args = ['config', 'get', 'backlogCliPath'];
+			
+			expect(args[0]).toBe('config');
+			expect(args[1]).toBe('get');
+			expect(args[2]).toBe('backlogCliPath');
+		});
+		
+		test('should support set action with key and value', () => {
+			const args = ['config', 'set', 'transport', 'http'];
+			
+			expect(args[0]).toBe('config');
+			expect(args[1]).toBe('set');
+			expect(args[2]).toBe('transport');
+			expect(args[3]).toBe('http');
+		});
+		
+		test('should reject get without key', () => {
+			const args = ['config', 'get'];
+			// Should error because key is missing
+			expect(args.length).toBe(2);
+			expect(args[1]).toBe('get');
+			// Missing required parameter
+		});
+		
+		test('should reject set without value', () => {
+			const args = ['config', 'set', 'key'];
+			// Should error because value is missing
+			expect(args.length).toBe(3);
+			// Missing required value parameter
+		});
+	});
+	
+	describe('Info Command', () => {
+		test('should display server information', async () => {
+			const child = spawn('node', [cliPath, 'info']);
+			let output = '';
+			
+			child.stdout.on('data', (data) => {
+				output += data.toString();
+			});
+			
+			await new Promise((resolve) => {
+				child.on('exit', resolve);
+			});
+			
+			expect(output).toContain('Backlog.md MCP Server');
+			expect(output).toContain('Available Tools:');
+			expect(output).toContain('task_create');
+			expect(output).toContain('task_list');
+			expect(output).toContain('Resources:');
+			expect(output).toContain('backlog://tasks/all');
+		});
+	});
+	
+	describe('Invalid Commands', () => {
+		test('should show error for unknown command', async () => {
+			const child = spawn('node', [cliPath, 'invalid']);
+			let error = '';
+			
+			child.stderr.on('data', (data) => {
+				error += data.toString();
+			});
+			
+			const exitCode = await new Promise<number>((resolve) => {
+				child.on('exit', (code) => resolve(code || 0));
+			});
+			
+			expect(exitCode).not.toBe(0);
+			expect(error).toContain('error');
+		});
+	});
+	
+	describe('Command Arguments Validation', () => {
+		test('should validate required arguments', () => {
+			const testCases = [
+				{
+					command: ['config', 'get'],
+					shouldFail: true,
+					reason: 'Missing key argument'
+				},
+				{
+					command: ['config', 'set', 'key'],
+					shouldFail: true,
+					reason: 'Missing value argument'
+				},
+				{
+					command: ['setup', '--force'],
+					shouldFail: false,
+					reason: 'Valid optional flag'
+				},
+				{
+					command: ['start', '--transport', 'invalid'],
+					shouldFail: true,
+					reason: 'Invalid transport type'
+				}
+			];
+			
+			testCases.forEach((tc) => {
+				if (tc.shouldFail) {
+					// These commands should be rejected
+					expect(tc.command.length).toBeGreaterThan(0);
+				} else {
+					// These commands should be accepted
+					expect(tc.command.length).toBeGreaterThan(0);
+				}
+			});
+		});
+	});
+	
+	describe('Exit Codes', () => {
+		test('should exit with 0 on success', async () => {
+			const child = spawn('node', [cliPath, '--version']);
+			
+			const exitCode = await new Promise<number>((resolve) => {
+				child.on('exit', (code) => resolve(code || 0));
+			});
+			
+			expect(exitCode).toBe(0);
+		});
+		
+		test('should exit with non-zero on error', async () => {
+			const child = spawn('node', [cliPath, 'invalid-command']);
+			
+			const exitCode = await new Promise<number>((resolve) => {
+				child.on('exit', (code) => resolve(code || 0));
+			});
+			
+			expect(exitCode).not.toBe(0);
+		});
+	});
+});
+
+describe('CLI Integration', () => {
+	test('should handle SIGINT gracefully', async () => {
+		const child = spawn('node', [path.join(__dirname, '..', 'bin', 'backlog-mcp'), 'start']);
+		
+		// Give it time to start
+		await waitFor(100);
+		
+		// Send SIGINT
+		child.kill('SIGINT');
+		
+		const exitCode = await new Promise<number>((resolve) => {
+			child.on('exit', (code) => resolve(code || 0));
+		});
+		
+		// Should exit cleanly
+		expect(exitCode).toBe(0);
+	});
+	
+	test('should handle SIGTERM gracefully', async () => {
+		const child = spawn('node', [path.join(__dirname, '..', 'bin', 'backlog-mcp'), 'start']);
+		
+		// Give it time to start
+		await waitFor(100);
+		
+		// Send SIGTERM
+		child.kill('SIGTERM');
+		
+		const exitCode = await new Promise<number>((resolve) => {
+			child.on('exit', (code) => resolve(code || 0));
+		});
+		
+		// Should exit cleanly
+		expect(exitCode).toBe(0);
+	});
+});

@@ -1,0 +1,64 @@
+{
+	"name": "@radleta/backlog-md-mcp",
+	"version": "1.0.0",
+	"description": "MCP (Model Context Protocol) server for Backlog.md task management - integrate Backlog.md with Claude Desktop",
+	"keywords": [
+		"mcp",
+		"model-context-protocol",
+		"backlog",
+		"task-management",
+		"claude",
+		"claude-desktop",
+		"ai-tools",
+		"productivity",
+		"kanban",
+		"sprint-management"
+	],
+	"homepage": "https://github.com/radleta/backlog-md-mcp#readme",
+	"bugs": {
+		"url": "https://github.com/radleta/backlog-md-mcp/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/radleta/backlog-md-mcp.git"
+	},
+	"license": "MIT",
+	"author": {
+		"name": "radleta",
+		"url": "https://github.com/radleta"
+	},
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"bin": {
+		"backlog-mcp": "./bin/backlog-mcp"
+	},
+	"files": [
+		"dist/",
+		"bin/",
+		"scripts/",
+		"README.md",
+		"INSTALL.md",
+		"CHANGELOG.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"postinstall": "node scripts/postinstall.js",
+		"setup": "node dist/cli.js setup",
+		"start": "node dist/server.js"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^0.6.0",
+		"backlog.md": "latest",
+		"chalk": "^5.3.0",
+		"commander": "^12.0.0",
+		"inquirer": "^9.2.0",
+		"ora": "^8.0.0"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	}
+}

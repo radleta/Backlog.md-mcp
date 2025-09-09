@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies for MCP server
+        run: |
+          cd src
+          bun install
+      
+      - name: Install and build Backlog.md
+        run: |
+          cd Backlog.md
+          bun install
+          bun run build
+      
+      - name: Run tests
+        run: |
+          cd src
+          bun test
+      
+      - name: Run tests with coverage
+        run: |
+          cd src
+          bun test --coverage
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./src/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        run: |
+          cd src
+          bun install
+      
+      - name: Type check
+        run: |
+          cd src
+          bunx tsc --noEmit
+      
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        run: |
+          cd src
+          bun install
+      
+      - name: Build MCP server
+        run: |
+          cd src
+          bun run build
+      
+      - name: Verify build output
+        run: |
+          test -f src/backlog-mcp
+          echo "Build successful - binary created"
