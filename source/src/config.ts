@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
+import { existsSync } from 'fs';
 
 /**
  * Get the path to Claude Desktop configuration file
@@ -162,6 +163,25 @@ export async function getBacklogCliPath(): Promise<string> {
 	}
 }
 
+/**
+ * Check if Backlog.md is initialized in a directory
+ */
+export function isBacklogInitialized(projectPath: string = process.cwd()): boolean {
+	// Check for backlog/config.yml (current standard)
+	const standardConfigPath = path.join(projectPath, 'backlog', 'config.yml');
+	if (existsSync(standardConfigPath)) {
+		return true;
+	}
+	
+	// Check for .backlog/config.yml (legacy location)
+	const legacyConfigPath = path.join(projectPath, '.backlog', 'config.yml');
+	if (existsSync(legacyConfigPath)) {
+		return true;
+	}
+	
+	return false;
+}
+
 
 export default {
 	getClaudeConfigPath,
@@ -173,5 +193,6 @@ export default {
 	get,
 	set,
 	getAll,
-	getBacklogCliPath
+	getBacklogCliPath,
+	isBacklogInitialized
 };

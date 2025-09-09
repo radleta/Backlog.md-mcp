@@ -8,7 +8,8 @@ import os from 'os';
 import { 
 	getClaudeConfigPath, 
 	readClaudeConfig, 
-	writeClaudeConfig
+	writeClaudeConfig,
+	isBacklogInitialized
 } from './config.js';
 
 interface SetupOptions {
@@ -56,6 +57,29 @@ export async function runSetupWizard(options: SetupOptions = {}) {
 	}
 	
 	console.log(chalk.green(`✓ Found Claude Desktop config at: ${configPath}`));
+	
+	// Check if Backlog.md is initialized in the current directory
+	if (!isBacklogInitialized()) {
+		console.log(chalk.yellow('\n⚠️  Backlog.md is not initialized in the current directory.'));
+		console.log(chalk.white('The MCP server requires Backlog.md to be initialized to function properly.\n'));
+		
+		const { shouldContinue } = await inquirer.prompt([
+			{
+				type: 'confirm',
+				name: 'shouldContinue',
+				message: 'Do you want to continue with setup anyway?',
+				default: false
+			}
+		]);
+		
+		if (!shouldContinue) {
+			console.log(chalk.yellow('\nSetup cancelled.'));
+			console.log(chalk.cyan('Please run "backlog init" first to initialize Backlog.md in your project.'));
+			process.exit(0);
+		}
+		
+		console.log(chalk.yellow('\n⚠️  Warning: The MCP server will not work until you run "backlog init".\n'));
+	}
 	
 	// Ask for configuration options
 	const answers = await inquirer.prompt([

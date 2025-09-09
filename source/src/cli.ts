@@ -6,7 +6,7 @@
  */
 
 import { program } from 'commander';
-import { spawn, execSync } from 'child_process';
+import { execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -32,52 +32,30 @@ program
 	.option('-t, --transport <type>', 'Transport type (stdio or http)', 'stdio')
 	.option('-p, --port <port>', 'Port for HTTP transport', '3000')
 	.option('-v, --verbose', 'Enable verbose output')
-	.action((options) => {
+	.action(async (options) => {
+		// Import and start the server directly
+		const { startServer } = await import('./server.js');
+		
 		// Don't log to stdout when using STDIO transport as it interferes with MCP protocol
 		if (options.transport !== 'stdio') {
 			console.log('Starting Backlog.md MCP server...');
 		}
 		
-		const serverPath = path.join(__dirname, 'server.js');
-		const args: string[] = [];
-		
+		// Pass arguments through process.argv for the server to parse
 		if (options.transport === 'http') {
-			args.push('--http', '--port', options.port);
+			process.argv.push('--http', '--port', options.port);
 		}
 		
 		if (options.verbose) {
-			args.push('--verbose');
+			process.argv.push('--verbose');
 		}
 		
-		const child = spawn('node', [serverPath, ...args], {
-			stdio: options.transport === 'stdio' ? 'inherit' : 'pipe'
-		});
-		
-		if (options.transport === 'http') {
-			console.log(`MCP server running on http://localhost:${options.port}`);
-			
-			child.stdout?.on('data', (data) => {
-				if (options.verbose) {
-					console.log(data.toString());
-				}
-			});
-			
-			child.stderr?.on('data', (data) => {
-				console.error(data.toString());
-			});
-		}
-		
-		child.on('error', (err) => {
-			console.error('Failed to start server:', err);
+		try {
+			await startServer();
+		} catch (error: any) {
+			console.error('Failed to start server:', error);
 			process.exit(1);
-		});
-		
-		child.on('exit', (code) => {
-			if (code !== 0) {
-				console.error(`Server exited with code ${code}`);
-				process.exit(code || 1);
-			}
-		});
+		}
 	});
 
 // Setup command - configures Claude Desktop integration
@@ -148,6 +126,15 @@ program
 	.action(async () => {
 		try {
 			console.log('Validating Backlog.md MCP setup...\n');
+			
+			// Check if Backlog.md is initialized
+			if (!config.isBacklogInitialized()) {
+				console.error('❌ Backlog.md is not initialized in the current directory');
+				console.log('Run "backlog init" to initialize your project first');
+				process.exit(1);
+			}
+			
+			console.log('✅ Backlog.md is initialized');
 			
 			// Check if Claude Desktop config exists
 			const claudeConfig = await config.getClaudeConfig();

@@ -1,6 +1,6 @@
 # Backlog.md MCP Server
 
-An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.com/MrLesk/Backlog.md) task management system, enabling AI assistants like Claude to directly manage tasks, view boards, and handle sprints.
+An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.com/MrLesk/Backlog.md) task management system, enabling AI assistants like Claude to directly manage tasks and view Kanban boards.
 
 ## Features
 
@@ -9,14 +9,12 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
 - **Task Management**
   - `task_create` - Create new tasks with title, description, status, priority, and tags
   - `task_list` - List tasks with filtering by status, tag, or priority  
-  - `task_edit` - Edit existing tasks
-  - `task_move` - Move tasks between status columns
-  - `task_delete` - Delete tasks
+  - `task_edit` - Edit existing tasks (title, description, status, priority)
+  - `task_view` - View detailed task information
+  - `task_archive` - Archive tasks
 
-- **Board & Sprint Management**
+- **Board Management**
   - `board_show` - Display the Kanban board
-  - `sprint_create` - Create new sprints
-  - `sprint_current` - Show current sprint details
 
 - **Configuration**
   - `config_get` - Get configuration values
@@ -27,7 +25,44 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
 - `backlog://tasks/all` - View all tasks in markdown format
 - `backlog://board` - Current Kanban board view
 - `backlog://config` - Configuration settings
-- `backlog://sprint/current` - Current sprint details
+
+## Prerequisites
+
+Before using the MCP server, ensure:
+
+1. **Backlog.md is installed**: The MCP server requires the [Backlog.md CLI](https://github.com/MrLesk/Backlog.md) to be available
+2. **Project initialization**: Your project must have Backlog.md initialized (`backlog init`)
+3. **Working directory**: The MCP server runs commands in the directory where Claude is working
+
+### Important Notes
+
+- **Status values**: Must match your Backlog.md configuration exactly (default: "To Do", "In Progress", "Done")
+- **Non-interactive mode**: The MCP server automatically uses `--plain` flags to prevent interactive prompts
+- **Tags**: Use the `tags` parameter in MCP commands, which maps to `--labels` in the CLI
+
+### Tool Parameter Details
+
+- **task_create**: 
+  - `title` (required): Task title as a string
+  - `description` (optional): Task description
+  - `status` (optional): Must be exact: "To Do", "In Progress", or "Done"
+  - `priority` (optional): "low", "medium", "high", or "urgent"
+  - `tags` (optional): Array of strings (mapped to `--labels` in CLI)
+
+- **task_list**:
+  - `status` (optional): Filter by status or "all" for all tasks
+  - `tag` (optional): Filter by a specific tag
+  - `priority` (optional): Filter by priority level
+
+- **task_edit**:
+  - `taskId` (required): Task identifier (e.g., "task-123")
+  - `title`, `description`, `status`, `priority` (all optional): New values
+
+- **task_view**:
+  - `taskId` (required): Task identifier to view
+
+- **task_archive**:
+  - `taskId` (required): Task identifier to archive
 
 ## Installation
 
@@ -131,10 +166,12 @@ backlog-mcp validate
 Once configured, you can use natural language in Claude:
 
 - "Create a high-priority task for implementing user authentication"
-- "Show me all tasks in progress"
-- "Move task-123 to done"
+- "Show me all tasks with status 'In Progress'"
+- "Edit task-123 to change its status to 'Done'"
+- "View the details of task-456"
 - "Display the Kanban board"
-- "Create a new 2-week sprint starting Monday"
+- "Archive task-789"
+- "Get the current project configuration"
 
 
 ## Project Structure
@@ -223,9 +260,16 @@ backlog-mcp start --transport http --port 3000
 - Run `backlog-mcp validate` to check setup
 
 ### Commands Failing
-- Ensure you have a valid Backlog.md repository initialized
-- Check configuration: `backlog-mcp config get backlog_cli_path`
+- Ensure you have a valid Backlog.md repository initialized (`backlog init`)
+- Check that you're in the correct project directory
 - Verify the Backlog.md CLI works: `backlog --help`
+- Ensure status values match exactly (case-sensitive): "To Do", "In Progress", "Done"
+
+### Commands Hanging or No Response
+- This typically means the CLI is waiting for interactive input
+- The MCP server should automatically use `--plain` flags to prevent this
+- If persisting, restart Claude Desktop/Code to reload the MCP server
+- Check that you're using the latest version of the MCP server
 
 ### Debugging
 - Use verbose mode: `backlog-mcp start --verbose`

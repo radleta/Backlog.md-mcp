@@ -8,7 +8,7 @@ import {
 	ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { spawn } from 'child_process';
-import { getBacklogCliPath } from './config.js';
+import { getBacklogCliPath, isBacklogInitialized } from './config.js';
 
 // Initialize MCP server
 export const server = new Server(
@@ -26,12 +26,21 @@ export const server = new Server(
 
 // Helper to run backlog CLI commands
 async function runBacklogCommand(args: string[]): Promise<string> {
+	// Use the project directory from Claude (PWD env var)
+	const projectDir = process.env.PWD || process.cwd();
+	
+	// Check if Backlog.md is initialized in the PROJECT directory
+	if (!isBacklogInitialized(projectDir)) {
+		throw new Error('Backlog.md is not initialized in the project directory. Please run "backlog init" first.');
+	}
+	
 	try {
 		const backlogPath = await getBacklogCliPath();
 		
 		return new Promise((resolve, reject) => {
 			const child = spawn(backlogPath, args, {
-				shell: true,
+				shell: false,  // Don't use shell to avoid argument parsing issues
+				cwd: projectDir,  // Run command in project directory
 				env: { ...process.env }
 			});
 			
@@ -76,7 +85,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 					description: { type: "string", description: "Task description (optional)" },
 					status: {
 						type: "string",
-						enum: ["todo", "in-progress", "done", "blocked"],
+						enum: ["To Do", "In Progress", "Done"],
 						description: "Task status",
 					},
 					priority: {
@@ -101,7 +110,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 				properties: {
 					status: {
 						type: "string",
-						enum: ["todo", "in-progress", "done", "blocked", "all"],
+						enum: ["To Do", "In Progress", "Done", "all"],
 						description: "Filter by status",
 					},
 					tag: { type: "string", description: "Filter by tag" },
@@ -124,7 +133,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 					description: { type: "string", description: "New description (optional)" },
 					status: {
 						type: "string",
-						enum: ["todo", "in-progress", "done", "blocked"],
+						enum: ["To Do", "In Progress", "Done"],
 						description: "New status (optional)",
 					},
 					priority: {
@@ -137,28 +146,23 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 			},
 		},
 		{
-			name: "task_move",
-			description: "Move a task to a different status",
+			name: "task_view",
+			description: "View a task's details",
 			inputSchema: {
 				type: "object",
 				properties: {
-					taskId: { type: "string", description: "Task ID to move" },
-					status: {
-						type: "string",
-						enum: ["todo", "in-progress", "done", "blocked"],
-						description: "Target status",
-					},
+					taskId: { type: "string", description: "Task ID to view" },
 				},
-				required: ["taskId", "status"],
+				required: ["taskId"],
 			},
 		},
 		{
-			name: "task_delete",
-			description: "Delete a task",
+			name: "task_archive",
+			description: "Archive a task",
 			inputSchema: {
 				type: "object",
 				properties: {
-					taskId: { type: "string", description: "Task ID to delete" },
+					taskId: { type: "string", description: "Task ID to archive" },
 				},
 				required: ["taskId"],
 			},
@@ -166,28 +170,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 		{
 			name: "board_show",
 			description: "Show the Kanban board",
-			inputSchema: {
-				type: "object",
-				properties: {},
-			},
-		},
-		{
-			name: "sprint_create",
-			description: "Create a new sprint",
-			inputSchema: {
-				type: "object",
-				properties: {
-					name: { type: "string", description: "Sprint name" },
-					goal: { type: "string", description: "Sprint goal (optional)" },
-					startDate: { type: "string", description: "Start date (YYYY-MM-DD)" },
-					endDate: { type: "string", description: "End date (YYYY-MM-DD)" },
-				},
-				required: ["name", "startDate", "endDate"],
-			},
-		},
-		{
-			name: "sprint_current",
-			description: "Show the current sprint details",
 			inputSchema: {
 				type: "object",
 				properties: {},
@@ -240,12 +222,6 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => ({
 			description: "Current backlog configuration",
 			mimeType: "application/json",
 		},
-		{
-			uri: "backlog://sprint/current",
-			name: "Current Sprint",
-			description: "Details of the current sprint",
-			mimeType: "text/markdown",
-		},
 	],
 }));
 
@@ -255,7 +231,7 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request: any) => {
 
 	switch (uri) {
 		case "backlog://tasks/all": {
-			const tasks = await runBacklogCommand(["task", "list", "--all"]);
+			const tasks = await runBacklogCommand(["task", "list", "--plain"]);
 			return {
 				contents: [
 					{
@@ -267,7 +243,7 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request: any) => {
 			};
 		}
 		case "backlog://board": {
-			const board = await runBacklogCommand(["board", "show"]);
+			const board = await runBacklogCommand(["board", "view"]);
 			return {
 				contents: [
 					{
@@ -290,18 +266,6 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request: any) => {
 				],
 			};
 		}
-		case "backlog://sprint/current": {
-			const sprint = await runBacklogCommand(["sprint", "current"]);
-			return {
-				contents: [
-					{
-						uri,
-						mimeType: "text/markdown",
-						text: sprint,
-					},
-				],
-			};
-		}
 		default:
 			throw new Error(`Unknown resource: ${uri}`);
 	}
@@ -314,30 +278,28 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 	try {
 		switch (name) {
 			case "task_create": {
-				const cmdArgs = ["task", "create", "--title", args.title];
+				const cmdArgs = ["task", "create", args.title, "--plain"];
 				if (args.description) cmdArgs.push("--description", args.description);
 				if (args.status) cmdArgs.push("--status", args.status);
 				if (args.priority) cmdArgs.push("--priority", args.priority);
-				if (args.tags) {
-					for (const tag of args.tags) {
-						cmdArgs.push("--tag", tag);
-					}
+				if (args.tags && args.tags.length > 0) {
+					cmdArgs.push("--labels", args.tags.join(","));
 				}
 				const result = await runBacklogCommand(cmdArgs);
 				return { content: [{ type: "text", text: result }] };
 			}
 
 			case "task_list": {
-				const cmdArgs = ["task", "list"];
+				const cmdArgs = ["task", "list", "--plain"];
 				if (args.status && args.status !== "all") cmdArgs.push("--status", args.status);
-				if (args.tag) cmdArgs.push("--tag", args.tag);
+				if (args.tag) cmdArgs.push("--labels", args.tag);
 				if (args.priority) cmdArgs.push("--priority", args.priority);
 				const result = await runBacklogCommand(cmdArgs);
 				return { content: [{ type: "text", text: result }] };
 			}
 
 			case "task_edit": {
-				const cmdArgs = ["task", "edit", args.taskId];
+				const cmdArgs = ["task", "edit", args.taskId, "--plain"];
 				if (args.title) cmdArgs.push("--title", args.title);
 				if (args.description) cmdArgs.push("--description", args.description);
 				if (args.status) cmdArgs.push("--status", args.status);
@@ -346,41 +308,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 				return { content: [{ type: "text", text: result }] };
 			}
 
-			case "task_move": {
-				const result = await runBacklogCommand(["task", "move", args.taskId, args.status]);
+			case "task_view": {
+				const result = await runBacklogCommand(["task", "view", args.taskId, "--plain"]);
 				return { content: [{ type: "text", text: result }] };
 			}
 
-			case "task_delete": {
-				const result = await runBacklogCommand(["task", "delete", args.taskId, "--force"]);
+			case "task_archive": {
+				const result = await runBacklogCommand(["task", "archive", args.taskId]);
 				return { content: [{ type: "text", text: result }] };
 			}
 
 			case "board_show": {
-				const result = await runBacklogCommand(["board", "show"]);
+				const result = await runBacklogCommand(["board", "view"]);
 				return { content: [{ type: "text", text: result }] };
 			}
 
-			case "sprint_create": {
-				const cmdArgs = [
-					"sprint",
-					"create",
-					"--name",
-					args.name,
-					"--start",
-					args.startDate,
-					"--end",
-					args.endDate,
-				];
-				if (args.goal) cmdArgs.push("--goal", args.goal);
-				const result = await runBacklogCommand(cmdArgs);
-				return { content: [{ type: "text", text: result }] };
-			}
-
-			case "sprint_current": {
-				const result = await runBacklogCommand(["sprint", "current"]);
-				return { content: [{ type: "text", text: result }] };
-			}
 
 			case "config_get": {
 				const result = await runBacklogCommand(["config", "get", args.key]);
@@ -408,8 +350,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 	}
 });
 
-// Start the server if run directly
-async function main() {
+// Start the server
+export async function startServer() {
+	// Don't check initialization here - let the server start
+	// Individual commands will handle initialization checks
+	
 	const args = process.argv.slice(2);
 	const isHttp = args.includes('--http');
 	
@@ -421,18 +366,9 @@ async function main() {
 		// STDIO transport
 		const transport = new StdioServerTransport();
 		await server.connect(transport);
-		// Don't output anything to avoid interfering with MCP protocol
+		// Server is now running and listening for MCP protocol messages
 	}
 }
 
-// Only run main if this is the entry point
-// For ES modules, check if this file is being run directly
-const isMainModule = process.argv[1] && import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/').replace(/^C:/, 'C:')}`;
-if (isMainModule) {
-	main().catch((error) => {
-		console.error("Server error:", error);
-		process.exit(1);
-	});
-}
-
+// Export server as default
 export default server;

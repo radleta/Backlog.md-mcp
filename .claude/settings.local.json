@@ -6,7 +6,14 @@
       "Bash(npm test)",
       "Bash(npm run typecheck:*)",
       "Bash(node dist/cli.js:*)",
-      "Bash(npx yaml-lint:*)"
+      "Bash(npx yaml-lint:*)",
+      "mcp__backlog-md__task_list",
+      "mcp__backlog-md__task_create",
+      "mcp__backlog-md__task_view",
+      "mcp__backlog-md__board_show",
+      "mcp__backlog-md__task_edit",
+      "mcp__backlog-md__task_archive",
+      "mcp__backlog-md__config_get"
     ],
     "deny": [],
     "ask": []
