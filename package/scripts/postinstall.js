@@ -6,9 +6,9 @@
  * This script runs after npm install to help users set up the integration
  */
 
-const { existsSync } = require('fs');
-const path = require('path');
-const os = require('os');
+import { existsSync } from 'fs';
+import path from 'path';
+import os from 'os';
 
 console.log('\n🎉 Backlog.md MCP Server installed successfully!\n');
 

@@ -8,7 +8,7 @@ import {
 	ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { spawn } from 'child_process';
-import { getBacklogCliPath } from './config';
+import { getBacklogCliPath } from './config.js';
 
 // Initialize MCP server
 export const server = new Server(
@@ -421,12 +421,12 @@ async function main() {
 		// STDIO transport
 		const transport = new StdioServerTransport();
 		await server.connect(transport);
-		console.error("Backlog.md MCP server running on stdio");
+		// Don't output anything to avoid interfering with MCP protocol
 	}
 }
 
 // Only run main if this is the entry point
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
 	main().catch((error) => {
 		console.error("Server error:", error);
 		process.exit(1);

@@ -108,6 +108,27 @@ Once the MCP server is connected, you can interact with your backlog through Cla
   - "Create a new sprint starting Monday for 2 weeks"
   - "Show the current sprint details"
 
+## Data Storage
+
+**Important**: This MCP server does not store any backlog data itself. It acts as a bridge between Claude Desktop and the Backlog.md CLI tool.
+
+### How Data Storage Works
+
+- **Backlog data location**: All tasks, boards, and sprint data are stored by the underlying Backlog.md CLI according to its own configuration and working directory
+- **MCP server config**: Only stores server settings in `~/.backlog-mcp/config.json` (things like custom CLI path)
+- **Claude Desktop config**: Stores MCP server connection details in platform-specific Claude configuration file
+
+### Finding Your Backlog Data
+
+To determine where your backlog files are actually saved:
+- Ask Claude: "What's the current backlog storage configuration?"
+- Or use: "Show me the backlog config settings"
+- The MCP server will query the Backlog.md CLI to get the actual data storage location
+
+### Data Backup
+
+Since all data is managed by the Backlog.md CLI, refer to the [Backlog.md documentation](https://github.com/MrLesk/Backlog.md) for backup and data management procedures.
+
 ## Project Structure
 
 ```
