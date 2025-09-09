@@ -139,7 +139,7 @@ program
 // Validate command - checks if setup is correct
 program
 	.command('validate')
-	.description('Validate Claude Desktop integration')
+	.description('Validate Claude Desktop and Claude Code integration')
 	.action(async () => {
 		try {
 			console.log('Validating Backlog.md MCP setup...\n');
@@ -162,6 +162,7 @@ program
 			console.log('✅ Claude Desktop configuration found');
 			console.log('✅ Backlog.md MCP server configured');
 			
+			
 			// Check if Backlog.md is accessible
 			try {
 				execSync('npx backlog --version', { stdio: 'ignore' });
@@ -173,6 +174,8 @@ program
 			
 			console.log('\n✨ Setup validated successfully!');
 			console.log('Restart Claude Desktop to use Backlog.md integration');
+			console.log('\nFor Claude Code, run:');
+			console.log('  claude mcp add backlog-md -- backlog-mcp start');
 			
 		} catch (error: any) {
 			console.error('Validation failed:', error.message);

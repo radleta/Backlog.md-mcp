@@ -4,7 +4,11 @@ import ora from 'ora';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import { getClaudeConfigPath, readClaudeConfig, writeClaudeConfig } from './config';
+import { 
+	getClaudeConfigPath, 
+	readClaudeConfig, 
+	writeClaudeConfig
+} from './config';
 
 interface SetupOptions {
 	force?: boolean;
@@ -133,6 +137,9 @@ export async function runSetupWizard(options: SetupOptions = {}) {
 		console.log(chalk.gray('     - "Show me all tasks in progress"'));
 		console.log(chalk.gray('     - "Display the Kanban board"'));
 		console.log(chalk.white('\n  3. Run "backlog-mcp validate" to test the setup'));
+		
+		console.log(chalk.cyan('\nFor Claude Code users:'));
+		console.log(chalk.white('  Run: claude mcp add backlog-md -- backlog-mcp start'));
 		
 	} catch (error) {
 		spinner.fail('Configuration failed');

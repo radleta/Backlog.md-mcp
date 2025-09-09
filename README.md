@@ -34,14 +34,14 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
 ### From npm
 
 ```bash
-npm install -g @radleta/backlog-md-mcp
+npm install -g backlog-md-mcp
 ```
 
 ### From Source
 
 1. **Clone the repository with submodules**:
    ```bash
-   git clone --recursive https://github.com/[your-username]/Backlog.md-mcp.git
+   git clone --recursive https://github.com/radleta/Backlog.md-mcp.git
    cd Backlog.md-mcp
    ```
 
@@ -89,6 +89,21 @@ Add to your Claude Desktop configuration file:
 }
 ```
 
+### Claude Code Integration
+
+To use with Claude Code, install the MCP server using the Claude CLI:
+
+```bash
+# Install the server globally first
+npm install -g backlog-md-mcp
+
+# Add to Claude Code (user scope - available in all projects)
+claude mcp add backlog-md --scope user -- backlog-mcp start
+
+# Or add for current project only
+claude mcp add backlog-md --scope project -- backlog-mcp start
+```
+
 ## Usage
 
 ### CLI Commands
@@ -120,6 +135,7 @@ Once configured, you can use natural language in Claude:
 - "Move task-123 to done"
 - "Display the Kanban board"
 - "Create a new 2-week sprint starting Monday"
+
 
 ## Project Structure
 
@@ -233,11 +249,11 @@ MIT License - See LICENSE file for details
 ## Related Projects
 
 - [Backlog.md](https://github.com/MrLesk/Backlog.md) - The task management system
-- [Model Context Protocol](https://modelcontextprotocol.io) - MCP specification
+- [Model Context Protocol](https://modelcontextprotocol.io/) - MCP specification
 - [Claude Desktop](https://claude.ai/download) - AI assistant with MCP support
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/[your-username]/Backlog.md-mcp/issues)
+- **Issues**: [GitHub Issues](https://github.com/radleta/Backlog.md-mcp/issues)
 - **Backlog.md**: [Official Repository](https://github.com/MrLesk/Backlog.md)
 - **MCP Documentation**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
