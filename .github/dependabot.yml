@@ -1,0 +1,47 @@
+version: 2
+updates:
+  # Source package dependencies
+  - package-ecosystem: "npm"
+    directory: "/source"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "source"
+    commit-message:
+      prefix: "chore(deps)"
+  
+  # Distribution package dependencies
+  - package-ecosystem: "npm"
+    directory: "/package"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "package"
+    commit-message:
+      prefix: "chore(deps)"
+  
+  # Backlog.md submodule
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "submodule"
+    commit-message:
+      prefix: "chore(submodule)"
+  
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "chore(ci)"

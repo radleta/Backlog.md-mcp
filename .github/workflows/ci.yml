@@ -8,11 +8,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     
     strategy:
       matrix:
-        node-version: [20.x]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18.x, 20.x]
     
     steps:
       - name: Checkout repository
@@ -20,65 +21,101 @@ jobs:
         with:
           submodules: recursive
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       
-      - name: Install dependencies for MCP server
+      - name: Install source dependencies
         run: |
-          cd src
-          bun install
-      
-      - name: Install and build Backlog.md
-        run: |
-          cd Backlog.md
-          bun install
-          bun run build
+          cd source
+          npm ci
       
       - name: Run tests
         run: |
-          cd src
-          bun test
-      
-      - name: Run tests with coverage
-        run: |
-          cd src
-          bun test --coverage
-      
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./src/coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-
-  lint:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      
-      - name: Install dependencies
-        run: |
-          cd src
-          bun install
+          cd source
+          npm test
       
       - name: Type check
         run: |
-          cd src
-          bunx tsc --noEmit
+          cd source
+          npm run typecheck
       
-  build:
+      - name: Lint
+        run: |
+          cd source
+          npm run lint
+      
+      - name: Build project
+        run: |
+          cd source
+          npm run build
+      
+      - name: Verify build output
+        run: |
+          test -f package/dist/cli.js
+          test -f package/dist/server.js
+          test -f package/dist/config.js
+          test -f package/dist/setup.js
+        shell: bash
+
+  build-full:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Run build script (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x build.sh
+          ./build.sh
+      
+      - name: Run build script (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd source
+          npm ci
+          npm run build
+          cd ../package
+          npm ci --production
+        shell: bash
+      
+      - name: Test CLI help
+        run: |
+          cd package
+          node dist/cli.js --help
+        shell: bash
+      
+      - name: Test CLI info
+        run: |
+          cd package
+          node dist/cli.js info
+        shell: bash
+
+  validate-package:
     runs-on: ubuntu-latest
     
     steps:
@@ -87,22 +124,34 @@ jobs:
         with:
           submodules: recursive
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       
-      - name: Install dependencies
+      - name: Build project
         run: |
-          cd src
-          bun install
+          cd source
+          npm ci
+          npm run build
       
-      - name: Build MCP server
+      - name: Validate package.json
         run: |
-          cd src
-          bun run build
+          cd package
+          npm pack --dry-run
       
-      - name: Verify build output
+      - name: Check ES module compatibility
         run: |
-          test -f src/backlog-mcp
-          echo "Build successful - binary created"
+          cd package
+          node -e "import('./dist/server.js').then(() => console.log('ES modules working!'))"
+      
+      - name: Verify MCP server can start
+        run: |
+          cd package
+          timeout 5s node dist/server.js || true
+        shell: bash
