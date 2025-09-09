@@ -3,8 +3,9 @@ import chalk from 'chalk';
 import ora from 'ora';
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import os from 'os';
-import { getClaudeConfigPath, readClaudeConfig, writeClaudeConfig } from './config';
+import { getClaudeConfigPath, readClaudeConfig, writeClaudeConfig } from './config.js';
 
 interface SetupOptions {
 	force?: boolean;
@@ -86,7 +87,8 @@ export async function runSetupWizard(options: SetupOptions = {}) {
 		// Read existing config
 		const config = await readClaudeConfig(configPath) || { mcpServers: {} };
 		
-		// Get the path to this package
+		// Get the path to this package - ES module workaround for __dirname
+		const __dirname = path.dirname(fileURLToPath(import.meta.url));
 		const packagePath = path.join(__dirname, '..');
 		const execPath = path.join(packagePath, 'bin', 'backlog-mcp');
 		

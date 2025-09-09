@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/dev/github/Backlog.md-mcp/source/src/**)",
+      "Read(//c/dev/github/Backlog.md-mcp/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

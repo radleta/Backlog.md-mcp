@@ -7,4 +7,4 @@
  * The actual implementation is in source/src/cli.ts
  */
 
-require('../dist/cli.js');
+import '../dist/cli.js';

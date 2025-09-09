@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import os from 'os';
 
 /**
@@ -150,6 +151,8 @@ export async function getBacklogCliPath(): Promise<string> {
 	
 	// Try to find the bundled version
 	try {
+		// ES module workaround for __dirname
+		const __dirname = path.dirname(fileURLToPath(import.meta.url));
 		const bundledPath = path.join(__dirname, '..', 'node_modules', '.bin', 'backlog');
 		await fs.access(bundledPath);
 		return bundledPath;

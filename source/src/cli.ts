@@ -9,11 +9,13 @@ import { program } from 'commander';
 import { spawn, execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
-import { runSetupWizard } from './setup';
-import * as config from './config';
+import { fileURLToPath } from 'url';
+import { runSetupWizard } from './setup.js';
+import * as config from './config.js';
 import chalk from 'chalk';
 
-// Get package version
+// Get package version - ES module workaround for __dirname
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageJson = JSON.parse(
 	fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
 );
