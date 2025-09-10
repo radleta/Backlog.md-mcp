@@ -50,6 +50,21 @@ The Backlog.md MCP Server wraps the Backlog.md CLI tool to provide structured ac
 - `browser` - Launch web interface with optional port and browser settings
 - `agents_update` - Update agent instruction files (.cursorrules, CLAUDE.md, AGENTS.md, etc.)
 
+## Effective Task Management
+
+When creating tasks, always consider:
+1. **Acceptance Criteria** - Define measurable completion conditions
+2. **Dependencies** - Set execution order between related tasks  
+3. **Sub-tasks** - Break complex work into manageable pieces
+4. **Priority** - Indicate task importance (high/medium/low)
+
+Example workflow:
+- Create parent task for major feature
+- Add sub-tasks for implementation steps
+- Set dependencies between sub-tasks
+- Include acceptance criteria for each task
+- Use sequence_list to verify execution order
+
 ## Available Resources
 
 The server exposes these resources for reading:

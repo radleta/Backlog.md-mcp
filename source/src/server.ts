@@ -174,7 +174,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 	tools: [
 		{
 			name: "task_create",
-			description: "Create a new task in backlog",
+			description: "Create new tasks with comprehensive task management features. BEST PRACTICES: Always include acceptance criteria for measurable completion (ac: ['Test passes', 'Documentation updated']), set dependencies for proper execution order (dependencies: 'task-001,task-002'), use parent for sub-tasks (parent: 'task-008'). Example: Create feature task with ac: ['API endpoint works', 'Tests pass'], dependencies: 'task-001', priority: 'high'",
 			inputSchema: {
 				type: "object",
 				properties: {
@@ -201,10 +201,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 					ac: {
 						type: "array",
 						items: { type: "string" },
-						description: "Acceptance criteria (optional)",
+						description: "Acceptance criteria - measurable outcomes that define task completion. Each criterion should be specific and verifiable. Example: ['Unit tests pass', 'Code review approved', 'Documentation updated']",
 					},
-					dependencies: { type: "string", description: "Comma-separated task dependencies (optional)" },
-					parent: { type: "string", description: "Parent task ID for creating subtasks (optional)" },
+					dependencies: { type: "string", description: "Task dependencies - comma-separated IDs of tasks that must complete before this task. Creates execution sequences. Example: 'task-001,task-002' means this task depends on completion of tasks 001 and 002" },
+					parent: { type: "string", description: "Parent task ID for creating sub-tasks in a hierarchy. Sub-tasks help break down complex work. Example: 'task-008' creates this as a sub-task (task-008.01)" },
 					draft: { type: "boolean", description: "Create as draft task (optional)" },
 				},
 				required: ["title"],
@@ -212,7 +212,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 		},
 		{
 			name: "task_list",
-			description: "List all tasks with optional filtering",
+			description: "List tasks with powerful filtering. Use parent parameter to see all sub-tasks of a parent. Combine filters for specific views. Example: List high-priority sub-tasks with parent: 'task-008', priority: 'high', status: 'To Do'",
 			inputSchema: {
 				type: "object",
 				properties: {
@@ -239,7 +239,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 		},
 		{
 			name: "task_edit",
-			description: "Edit an existing task",
+			description: "Edit existing tasks with full property support. Use checkAc/uncheckAc arrays to mark acceptance criteria complete (checkAc: [1,2]). Add new criteria with ac parameter. Set dependencies to establish task order. Example: Mark criteria done with checkAc: [1,3], add dependency with dependencies: 'task-005,task-006'",
 			inputSchema: {
 				type: "object",
 				properties: {
@@ -512,7 +512,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 		},
 		{
 			name: "sequence_list",
-			description: "List execution sequences computed from task dependencies",
+			description: "View task execution sequences based on dependencies. Shows which tasks can run in parallel and which must wait. Essential for understanding workflow order after setting dependencies",
 			inputSchema: {
 				type: "object",
 				properties: {},
@@ -528,7 +528,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 		},
 		{
 			name: "task_dependencies",
-			description: "View dependency graph for a specific task",
+			description: "View complete dependency graph for a task, showing what it depends on (upstream) and what depends on it (downstream). Use to verify workflow before starting work",
 			inputSchema: {
 				type: "object",
 				properties: {
