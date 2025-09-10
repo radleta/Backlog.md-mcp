@@ -31,7 +31,10 @@
       "Bash(bun test:*)",
       "Bash(./dev.sh:*)",
       "Bash(./test-mcp.sh:*)",
-      "Bash(npm ci:*)"
+      "Bash(npm ci:*)",
+      "Bash(npm pack:*)",
+      "Bash(npm run size:check:*)",
+      "Bash(npm test:*)"
     ],
     "deny": [],
     "ask": []

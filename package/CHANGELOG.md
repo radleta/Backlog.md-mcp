@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Automated npm publishing workflow with lifecycle scripts
+  - `prepublishOnly` script runs full validation (tests, lint, typecheck, build) before publishing
+  - `version` script automatically updates CHANGELOG.md when version is bumped
+  - `postversion` script pushes git commits and tags to remote repository
+  - `pack:dry` and `size:check` utility scripts for package validation
+  - `release` script for pre-release verification
 - MCP (Model Context Protocol) server for Backlog.md task management
 - Full integration with Claude Code via STDIO transport
 - Comprehensive CLI with commands:

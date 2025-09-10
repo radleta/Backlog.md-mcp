@@ -48,7 +48,9 @@ if [ -f "dist/cli.js" ] && [ -f "dist/server.js" ] && [ -f "dist/index.js" ]; th
     echo "  backlog-mcp validate                 # Verify installation"
     echo ""
     echo "To publish:"
-    echo "  cd package && npm publish"
+    echo "  cd package && npm run release        # Verify readiness"
+    echo "  cd package && npm version [patch|minor|major]  # Auto-update changelog & push"
+    echo "  cd package && npm publish            # Auto-validate & publish"
 else
     echo "❌ Build failed - missing expected files"
     exit 1

@@ -1,10 +1,10 @@
 ---
 id: task-008.02
 title: Enhance npm automation scripts
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-09-10 19:07'
-updated_date: '2025-09-10 19:12'
+updated_date: '2025-09-10 21:11'
 labels:
   - npm
   - automation
@@ -21,9 +21,9 @@ Add npm lifecycle scripts for automated publishing workflow
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 prepublishOnly script runs tests before publish
-- [ ] #2 version script updates CHANGELOG.md automatically
-- [ ] #3 postversion script pushes git tags
-- [ ] #4 npm pack --dry-run shows correct files included
-- [ ] #5 Package size is reasonable (<1MB)
+- [x] #1 prepublishOnly script runs tests before publish
+- [x] #2 version script updates CHANGELOG.md automatically
+- [x] #3 postversion script pushes git tags
+- [x] #4 npm pack --dry-run shows correct files included
+- [x] #5 Package size is reasonable (<1MB)
 <!-- AC:END -->

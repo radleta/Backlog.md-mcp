@@ -299,10 +299,45 @@ type(scope): description
 
 ### Release Process
 
-1. Update version in `package/package.json`
-2. Update `CHANGELOG.md`
-3. Create git tag: `v1.x.x`
-4. Build and publish: `cd package && npm publish`
+The release process is now fully automated using npm lifecycle scripts:
+
+#### 1. Pre-Release Validation
+```bash
+cd package
+npm run release  # Check package size, files, and readiness
+```
+
+#### 2. Version Bump and Release
+```bash
+cd package
+npm version [patch|minor|major]  # Automatically:
+                                  # - Updates package version
+                                  # - Updates CHANGELOG.md 
+                                  # - Commits changes
+                                  # - Creates git tag
+                                  # - Pushes to remote
+
+npm publish  # Automatically runs tests and validation before publishing
+```
+
+#### 3. What Happens Automatically
+
+**During `npm version`:**
+- Runs `version` script: Updates CHANGELOG.md by moving "Unreleased" content to new version section
+- Commits version bump and changelog changes
+- Creates git tag (e.g., `v0.1.1`)
+- Runs `postversion` script: Pushes commits and tags to remote repository
+
+**During `npm publish`:**
+- Runs `prepublishOnly` script: Full validation (build, test, lint, typecheck)
+- Only publishes if all checks pass
+
+#### 4. Manual Steps (Legacy Reference)
+If you need to bypass automation:
+1. Manually update version in `package/package.json`
+2. Manually update `CHANGELOG.md`
+3. Create git tag: `git tag v1.x.x && git push --tags`
+4. Build and publish: `npm publish`
 
 ## Implementation Guidelines
 
