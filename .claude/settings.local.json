@@ -27,7 +27,8 @@
       "mcp__backlog-md__task_dependencies",
       "mcp__backlog-md__task_children",
       "Bash(./bin/backlog-mcp validate:*)",
-      "Bash(./bin/backlog-mcp:*)"
+      "Bash(./bin/backlog-mcp:*)",
+      "Bash(bun test:*)"
     ],
     "deny": [],
     "ask": []
