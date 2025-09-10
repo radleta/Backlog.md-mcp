@@ -6,7 +6,6 @@
 
 export { default as server } from './server';
 export * from './config';
-export { runSetupWizard } from './setup';
 
 // Re-export MCP types for convenience
 export { Server } from '@modelcontextprotocol/sdk/server/index.js';

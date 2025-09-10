@@ -6,16 +6,13 @@ describe('Config Module Basic Tests', () => {
 	test('config module should export expected functions', async () => {
 		const configModule = await import('../src/config');
 		
-		expect(typeof configModule.getClaudeConfigPath).toBe('function');
-		expect(typeof configModule.readClaudeConfig).toBe('function');
-		expect(typeof configModule.writeClaudeConfig).toBe('function');
-		expect(typeof configModule.getClaudeConfig).toBe('function');
 		expect(typeof configModule.getLocalConfig).toBe('function');
 		expect(typeof configModule.saveLocalConfig).toBe('function');
 		expect(typeof configModule.get).toBe('function');
 		expect(typeof configModule.set).toBe('function');
 		expect(typeof configModule.getAll).toBe('function');
 		expect(typeof configModule.getBacklogCliPath).toBe('function');
+		expect(typeof configModule.isBacklogInitialized).toBe('function');
 	});
 	
 	test('getBacklogCliPath should return a string', async () => {

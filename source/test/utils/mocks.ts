@@ -54,17 +54,12 @@ export class MockFileSystem {
 }
 
 /**
- * Mock Claude Desktop configuration
+ * Mock local MCP configuration
  */
-export function mockClaudeConfig(exists: boolean = true, configured: boolean = false) {
+export function mockLocalConfig(exists: boolean = true, configured: boolean = false) {
 	const config = configured ? {
-		mcpServers: {
-			'backlog-md': {
-				command: 'node',
-				args: ['/path/to/backlog-mcp', 'start']
-			}
-		}
-	} : { mcpServers: {} };
+		backlogCliPath: '/custom/path/to/backlog'
+	} : {};
 	
 	return exists ? JSON.stringify(config, null, 2) : null;
 }

@@ -5,94 +5,6 @@ import os from 'os';
 import { existsSync } from 'fs';
 
 /**
- * Get the path to Claude Desktop configuration file
- */
-export async function getClaudeConfigPath(): Promise<string | null> {
-	const platform = process.platform;
-	let configPath: string;
-	
-	switch (platform) {
-		case 'darwin': // macOS
-			configPath = path.join(
-				os.homedir(),
-				'Library',
-				'Application Support',
-				'Claude',
-				'claude_desktop_config.json'
-			);
-			break;
-			
-		case 'win32': // Windows
-			configPath = path.join(
-				process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'),
-				'Claude',
-				'claude_desktop_config.json'
-			);
-			break;
-			
-		case 'linux':
-			configPath = path.join(
-				os.homedir(),
-				'.config',
-				'claude',
-				'claude_desktop_config.json'
-			);
-			break;
-			
-		default:
-			return null;
-	}
-	
-	try {
-		await fs.access(configPath);
-		return configPath;
-	} catch {
-		// Try to create the directory and file if it doesn't exist
-		try {
-			const dir = path.dirname(configPath);
-			await fs.mkdir(dir, { recursive: true });
-			await fs.writeFile(configPath, JSON.stringify({ mcpServers: {} }, null, 2));
-			return configPath;
-		} catch {
-			return null;
-		}
-	}
-}
-
-/**
- * Read Claude Desktop configuration
- */
-export async function readClaudeConfig(configPath: string): Promise<any> {
-	try {
-		const content = await fs.readFile(configPath, 'utf-8');
-		return JSON.parse(content);
-	} catch (error) {
-		if ((error as any).code === 'ENOENT') {
-			return null;
-		}
-		throw error;
-	}
-}
-
-/**
- * Write Claude Desktop configuration
- */
-export async function writeClaudeConfig(configPath: string, config: any): Promise<void> {
-	const dir = path.dirname(configPath);
-	await fs.mkdir(dir, { recursive: true });
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2));
-}
-
-/**
- * Get Claude Desktop configuration
- */
-export async function getClaudeConfig(): Promise<any> {
-	const configPath = await getClaudeConfigPath();
-	if (!configPath) return null;
-	return readClaudeConfig(configPath);
-}
-
-/**
  * Get local Backlog MCP configuration
  */
 export async function getLocalConfig(): Promise<any> {
@@ -184,10 +96,6 @@ export function isBacklogInitialized(projectPath: string = process.cwd()): boole
 
 
 export default {
-	getClaudeConfigPath,
-	readClaudeConfig,
-	writeClaudeConfig,
-	getClaudeConfig,
 	getLocalConfig,
 	saveLocalConfig,
 	get,

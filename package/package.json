@@ -2,14 +2,14 @@
 	"name": "@radleta/backlog-md-mcp",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "MCP (Model Context Protocol) server for Backlog.md task management - integrate Backlog.md with Claude Desktop",
+	"description": "MCP (Model Context Protocol) server for Backlog.md task management - integrate Backlog.md with Claude Code",
 	"keywords": [
 		"mcp",
 		"model-context-protocol",
 		"backlog",
 		"task-management",
 		"claude",
-		"claude-desktop",
+		"claude-code",
 		"ai-tools",
 		"productivity",
 		"kanban",
@@ -36,15 +36,12 @@
 	"files": [
 		"dist/",
 		"bin/",
-		"scripts/",
 		"README.md",
 		"INSTALL.md",
 		"CHANGELOG.md",
 		"LICENSE"
 	],
 	"scripts": {
-		"postinstall": "node scripts/postinstall.js",
-		"setup": "node dist/cli.js setup",
 		"start": "node dist/server.js"
 	},
 	"dependencies": {

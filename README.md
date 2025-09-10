@@ -149,40 +149,17 @@ npm install -g backlog-md-mcp
 
 ## Configuration
 
-### Quick Setup
+### Setup
 
-Run the interactive setup:
+For Claude Code users:
 
 ```bash
-backlog-mcp setup
+# Install the server globally
+npm install -g @radleta/backlog-md-mcp
+
+# Add to Claude Code
+claude mcp add backlog-md -- backlog-mcp start
 ```
-
-This will automatically configure Claude Desktop to use the MCP server.
-
-### Manual Configuration
-
-Add to your Claude Desktop configuration file:
-
-**Location:**
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-- **Linux**: `~/.config/claude/claude_desktop_config.json`
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "backlog-md": {
-      "command": "backlog-mcp",
-      "args": ["start"]
-    }
-  }
-}
-```
-
-### Claude Code Integration
-
-To use with Claude Code, install the MCP server using the Claude CLI:
 
 ```bash
 # Install the server globally first
@@ -297,7 +274,7 @@ bun test
 The server supports two transport modes:
 
 ### STDIO (Default)
-Used by Claude Desktop and other MCP clients:
+Used by MCP clients:
 ```bash
 backlog-mcp start --transport stdio
 ```
@@ -312,7 +289,6 @@ backlog-mcp start --transport http --port 3000
 
 ### Server Not Connecting
 - Ensure `backlog-mcp` is in your PATH
-- Verify Claude Desktop has been restarted after configuration
 - Run `backlog-mcp validate` to check setup
 
 ### Commands Failing
@@ -324,12 +300,10 @@ backlog-mcp start --transport http --port 3000
 ### Commands Hanging or No Response
 - This typically means the CLI is waiting for interactive input
 - The MCP server should automatically use `--plain` flags to prevent this
-- If persisting, restart Claude Desktop/Code to reload the MCP server
 - Check that you're using the latest version of the MCP server
 
 ### Debugging
 - Use verbose mode: `backlog-mcp start --verbose`
-- Check Claude Desktop logs for connection errors
 - Run `backlog-mcp info` to see server capabilities
 
 ## Contributing
@@ -350,7 +324,7 @@ MIT License - See LICENSE file for details
 
 - [Backlog.md](https://github.com/MrLesk/Backlog.md) - The task management system
 - [Model Context Protocol](https://modelcontextprotocol.io/) - MCP specification
-- [Claude Desktop](https://claude.ai/download) - AI assistant with MCP support
+- [Claude](https://claude.ai) - AI assistant with MCP support
 
 ## Support
 

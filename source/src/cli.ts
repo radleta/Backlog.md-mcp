@@ -10,7 +10,6 @@ import { execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
-import { runSetupWizard } from './setup.js';
 import * as config from './config.js';
 import chalk from 'chalk';
 
@@ -22,7 +21,7 @@ const packageJson = JSON.parse(
 
 program
 	.name('backlog-mcp')
-	.description('Backlog.md MCP Server - Integrate Backlog.md with Claude Desktop')
+	.description('Backlog.md MCP Server - Integrate Backlog.md with MCP clients')
 	.version(packageJson.version);
 
 // Start command - runs the MCP server
@@ -58,20 +57,6 @@ program
 		}
 	});
 
-// Setup command - configures Claude Desktop integration
-program
-	.command('setup')
-	.description('Set up Claude Desktop integration')
-	.option('-f, --force', 'Force reconfiguration even if already set up')
-	.option('-p, --path <path>', 'Custom path to Claude Desktop config')
-	.action(async (options) => {
-		try {
-			await runSetupWizard(options);
-		} catch (error: any) {
-			console.error('Setup failed:', error.message);
-			process.exit(1);
-		}
-	});
 
 // Config command - manage configuration
 program
@@ -122,7 +107,7 @@ program
 // Validate command - checks if setup is correct
 program
 	.command('validate')
-	.description('Validate Claude Desktop and Claude Code integration')
+	.description('Validate Backlog.md MCP server setup')
 	.action(async () => {
 		try {
 			console.log('Validating Backlog.md MCP setup...\n');
@@ -136,24 +121,14 @@ program
 			
 			console.log('✅ Backlog.md is initialized');
 			
-			// Check if Claude Desktop config exists
-			const claudeConfig = await config.getClaudeConfig();
-			if (!claudeConfig) {
-				console.error('❌ Claude Desktop configuration not found');
-				console.log('Run "backlog-mcp setup" to configure');
+			// Test if the server can start
+			try {
+				await import('./server.js');
+				console.log('✅ MCP server can start successfully');
+			} catch (error: any) {
+				console.error('❌ MCP server failed to start:', error.message);
 				process.exit(1);
 			}
-			
-			// Check if our server is configured
-			if (!claudeConfig.mcpServers || !claudeConfig.mcpServers['backlog-md']) {
-				console.error('❌ Backlog.md MCP server not configured in Claude Desktop');
-				console.log('Run "backlog-mcp setup" to configure');
-				process.exit(1);
-			}
-			
-			console.log('✅ Claude Desktop configuration found');
-			console.log('✅ Backlog.md MCP server configured');
-			
 			
 			// Check if Backlog.md is accessible
 			try {
@@ -165,7 +140,6 @@ program
 			}
 			
 			console.log('\n✨ Setup validated successfully!');
-			console.log('Restart Claude Desktop to use Backlog.md integration');
 			console.log('\nFor Claude Code, run:');
 			console.log('  claude mcp add backlog-md -- backlog-mcp start');
 			
@@ -184,7 +158,7 @@ program
 Backlog.md MCP Server v${packageJson.version}
 ================================
 
-This server integrates Backlog.md task management with Claude Desktop
+This server integrates Backlog.md task management with MCP clients
 using the Model Context Protocol (MCP).
 
 Available Tools:

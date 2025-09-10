@@ -21,7 +21,6 @@ describe('Source Project Tests', () => {
 				'src/index.ts',
 				'src/server.ts',
 				'src/config.ts',
-				'src/setup.ts',
 				'src/cli.ts'
 			];
 			
@@ -105,7 +104,6 @@ describe('Source Project Tests', () => {
 				'index.js',
 				'server.js',
 				'config.js',
-				'setup.js',
 				'cli.js'
 			];
 			
@@ -121,7 +119,6 @@ describe('Source Project Tests', () => {
 				'index.d.ts',
 				'server.d.ts',
 				'config.d.ts',
-				'setup.d.ts',
 				'cli.d.ts'
 			];
 			

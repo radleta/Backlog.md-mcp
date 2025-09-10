@@ -5,45 +5,6 @@
 import * as path from 'path';
 import * as os from 'os';
 
-/**
- * Sample Claude Desktop configurations
- */
-export const claudeConfigs = {
-	empty: {
-		mcpServers: {}
-	},
-	
-	configured: {
-		mcpServers: {
-			'backlog-md': {
-				command: 'node',
-				args: ['/usr/local/bin/backlog-mcp', 'start', '--transport', 'stdio']
-			}
-		}
-	},
-	
-	multipleServers: {
-		mcpServers: {
-			'backlog-md': {
-				command: 'node',
-				args: ['/usr/local/bin/backlog-mcp', 'start']
-			},
-			'other-server': {
-				command: 'other-mcp',
-				args: ['--start']
-			}
-		}
-	},
-	
-	httpTransport: {
-		mcpServers: {
-			'backlog-md': {
-				command: 'node',
-				args: ['/usr/local/bin/backlog-mcp', 'start', '--transport', 'http', '--port', '3000']
-			}
-		}
-	}
-};
 
 /**
  * Sample task data
@@ -100,17 +61,14 @@ export const sampleSprint = {
  */
 export const platformPaths = {
 	darwin: {
-		claudeConfig: path.join(os.homedir(), 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json'),
 		npmGlobal: '/usr/local/lib/node_modules',
 		executable: '/usr/local/bin/backlog-mcp'
 	},
 	win32: {
-		claudeConfig: path.join(process.env.APPDATA || '', 'Claude', 'claude_desktop_config.json'),
 		npmGlobal: path.join(process.env.APPDATA || '', 'npm', 'node_modules'),
 		executable: path.join(process.env.APPDATA || '', 'npm', 'backlog-mcp.cmd')
 	},
 	linux: {
-		claudeConfig: path.join(os.homedir(), '.config', 'claude', 'claude_desktop_config.json'),
 		npmGlobal: '/usr/lib/node_modules',
 		executable: '/usr/bin/backlog-mcp'
 	}
@@ -195,7 +153,7 @@ export const mcpMessages = {
 export const cliTestCases = {
 	help: {
 		command: ['--help'],
-		expectedOutput: ['Backlog.md MCP Server', 'Commands:', 'setup', 'start', 'validate']
+		expectedOutput: ['Backlog.md MCP Server', 'Commands:', 'start', 'validate']
 	},
 	
 	version: {
@@ -289,10 +247,6 @@ export const testEnvironments = {
  * Error scenarios
  */
 export const errorScenarios = {
-	noClaudeDesktop: {
-		error: 'Claude Desktop not found',
-		solution: 'Install Claude Desktop from https://claude.ai/download'
-	},
 	
 	permissionDenied: {
 		error: 'EACCES: permission denied',
@@ -311,6 +265,6 @@ export const errorScenarios = {
 	
 	invalidConfig: {
 		error: 'Invalid configuration file',
-		solution: 'Run backlog-mcp setup to reconfigure'
+		solution: 'Check your local MCP configuration'
 	}
 };

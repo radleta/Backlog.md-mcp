@@ -4,7 +4,7 @@ This project provides an MCP (Model Context Protocol) server that enables AI ass
 
 ## Project Overview
 
-The Backlog.md MCP Server wraps the Backlog.md CLI tool to provide structured access to task management features through the Model Context Protocol. This allows Claude Desktop and Claude Code to directly manage tasks, view boards, and handle sprints.
+The Backlog.md MCP Server wraps the Backlog.md CLI tool to provide structured access to task management features through the Model Context Protocol. This allows Claude Code to directly manage tasks, view boards, and handle sprints.
 
 ## Available MCP Tools
 
@@ -65,17 +65,6 @@ The server exposes these resources for reading:
 - `backlog://statistics` - Enhanced project statistics and metrics
 
 ## Setup Instructions
-
-### For Claude Desktop
-
-The project includes an interactive setup wizard:
-
-```bash
-npm install -g @radleta/backlog-md-mcp
-backlog-mcp setup
-```
-
-This will automatically configure Claude Desktop's `claude_desktop_config.json` file.
 
 ### For Claude Code
 
@@ -142,9 +131,8 @@ backlog-mcp validate
 
 ### Common Issues
 
-1. **Server not connecting**: Ensure `backlog-mcp` is in your PATH and restart Claude Desktop
+1. **Server not connecting**: Ensure `backlog-mcp` is in your PATH
 2. **Commands failing**: Check that Backlog.md is initialized in your project directory
-3. **MCP indicator not showing**: Verify the configuration file is valid JSON
 
 ## Contributing
 

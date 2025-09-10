@@ -1,6 +1,6 @@
 # Backlog.md MCP Integration
 
-This repository provides an MCP (Model Context Protocol) server that integrates [Backlog.md](https://github.com/MrLesk/Backlog.md) with Claude Desktop, enabling Claude to directly manage tasks, view boards, and handle sprints through natural language.
+This repository provides an MCP (Model Context Protocol) server that integrates [Backlog.md](https://github.com/MrLesk/Backlog.md) with Claude Code, enabling Claude to directly manage tasks, view boards, and handle sprints through natural language.
 
 ## Features
 
@@ -66,7 +66,7 @@ This repository provides an MCP (Model Context Protocol) server that integrates 
 ### Prerequisites
 
 - [Bun](https://bun.sh) runtime installed
-- [Claude Desktop](https://claude.ai/download) application
+- [Claude Code](https://claude.ai) CLI tool
 - Git for cloning with submodules
 
 ### Setup Steps
@@ -89,31 +89,14 @@ This repository provides an MCP (Model Context Protocol) server that integrates 
    bun run build
    ```
 
-3. **Configure Claude Desktop**:
+3. **Configure Claude Code**:
    
-   Find your Claude configuration file:
-   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-   - **Linux**: `~/.config/claude/claude_desktop_config.json`
-
-   Add the Backlog.md server configuration:
-   ```json
-   {
-     "mcpServers": {
-       "backlog-md": {
-         "command": "bun",
-         "args": [
-           "run",
-           "/absolute/path/to/backlog-mcp-integration/src/backlog-mcp-server.ts"
-         ]
-       }
-     }
-   }
+   Use the Claude CLI to add the server:
+   ```bash
+   claude mcp add backlog-md -- bun run /absolute/path/to/backlog-mcp-integration/src/backlog-mcp-server.ts
    ```
 
    ⚠️ **Important**: Replace `/absolute/path/to/backlog-mcp-integration` with the actual absolute path to where you cloned this repository.
-
-4. **Restart Claude Desktop** to load the MCP server
 
 ## Usage
 
@@ -142,13 +125,13 @@ Once the MCP server is connected, you can interact with your backlog through Cla
 
 ## Data Storage
 
-**Important**: This MCP server does not store any backlog data itself. It acts as a bridge between Claude Desktop and the Backlog.md CLI tool.
+**Important**: This MCP server does not store any backlog data itself. It acts as a bridge between Claude Code and the Backlog.md CLI tool.
 
 ### How Data Storage Works
 
 - **Backlog data location**: All tasks, boards, and sprint data are stored by the underlying Backlog.md CLI according to its own configuration and working directory
 - **MCP server config**: Only stores server settings in `~/.backlog-mcp/config.json` (things like custom CLI path)
-- **Claude Desktop config**: Stores MCP server connection details in platform-specific Claude configuration file
+- **Claude Code config**: Stores MCP server connection details in Claude Code's MCP configuration
 
 ### Finding Your Backlog Data
 
@@ -201,7 +184,7 @@ bun run build
 ### Server Not Connecting
 - Ensure you're using absolute paths in the Claude configuration
 - Verify Bun is installed and accessible in your PATH
-- Check that Claude Desktop has been restarted after configuration changes
+- Verify the MCP server was properly configured with Claude Code
 
 ### Commands Failing
 - Ensure the Backlog.md CLI is built: `cd Backlog.md && bun run build`
@@ -210,7 +193,7 @@ bun run build
 
 ### Debugging
 - The MCP server logs to stderr, which won't interfere with Claude communication
-- Check Claude Desktop logs for connection errors
+- Check Claude Code logs for connection errors
 - Run the server standalone to see detailed error messages
 
 ## Contributing
@@ -225,4 +208,4 @@ This MCP integration follows the same license as the parent Backlog.md project.
 
 - [Backlog.md](https://github.com/MrLesk/Backlog.md) - The official task management system
 - [Model Context Protocol](https://modelcontextprotocol.io) - The protocol specification
-- [Claude Desktop](https://claude.ai) - The AI assistant that uses this integration
+- [Claude](https://claude.ai) - The AI assistant that uses this integration
