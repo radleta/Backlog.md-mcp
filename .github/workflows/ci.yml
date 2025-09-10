@@ -36,6 +36,11 @@ jobs:
           cd source
           npm ci
       
+      - name: Build project
+        run: |
+          cd source
+          npm run build
+      
       - name: Run tests
         run: |
           cd source
@@ -50,11 +55,6 @@ jobs:
         run: |
           cd source
           npm run lint
-      
-      - name: Build project
-        run: |
-          cd source
-          npm run build
       
       - name: Verify build output
         run: |
