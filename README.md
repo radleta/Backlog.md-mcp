@@ -237,20 +237,62 @@ Backlog.md-mcp/
 - TypeScript 5+
 - Git
 
-### Building from Source
+### Development Setup
+
+The project uses a dual-environment approach to allow development while maintaining a stable production version.
+
+#### Building from Source
 
 ```bash
-# Install development dependencies
-cd source
-npm install
-
-# Run tests
-npm test
-
-# Build the project
-cd ..
+# Clone and build
+git clone --recursive https://github.com/radleta/Backlog.md-mcp.git
+cd Backlog.md-mcp
 ./build.sh
 ```
+
+#### Development Workflow
+
+**🧪 Development Mode (Recommended)**
+```bash
+# Make changes in source/src/
+# Build and test with convenience script
+./dev.sh validate
+./dev.sh start
+
+# Or run full test suite
+./test-mcp.sh
+```
+
+**📦 Direct Path Execution**
+```bash
+# Build the project
+./build.sh
+
+# Run development version directly
+node package/bin/backlog-mcp-dev validate
+node package/bin/backlog-mcp-dev start
+```
+
+**🚀 Production Installation**
+```bash
+# Install stable version for daily use
+cd package
+npm install -g .
+
+# Use normally
+backlog-mcp start
+claude mcp add backlog-md -- backlog-mcp start
+```
+
+### Development vs Production
+
+| Aspect | Development | Production |
+|--------|------------|------------|
+| **Command** | `./dev.sh` or `node package/bin/backlog-mcp-dev` | `backlog-mcp` |
+| **Config Dir** | `~/.config/backlog-mcp-dev` | `~/.config/backlog-mcp` |
+| **Environment** | `BACKLOG_ENV=development` | `BACKLOG_ENV=production` |
+| **Installation** | Direct execution | Global npm package |
+| **Claude Code** | `node /path/to/package/bin/backlog-mcp-dev start` | `backlog-mcp start` |
 
 ### Running Tests
 
@@ -259,15 +301,21 @@ cd source
 npm test
 # or with Bun
 bun test
+
+# Full integration test
+./test-mcp.sh
 ```
 
-### Development Workflow
+### Claude Code Integration for Development
 
-1. Make changes in `source/src/`
-2. Run tests: `cd source && npm test`
-3. Build: `./build.sh`
-4. Test locally: `cd package && npm link`
-5. Use: `backlog-mcp start`
+```bash
+# Add development version
+claude mcp add backlog-md-dev -- node /home/ubuntu/Backlog.md-mcp/package/bin/backlog-mcp-dev start
+
+# Switch back to production (if installed)
+claude mcp remove backlog-md-dev
+claude mcp add backlog-md -- backlog-mcp start
+```
 
 ## Transport Modes
 

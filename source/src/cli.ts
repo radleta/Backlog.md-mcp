@@ -19,9 +19,16 @@ const packageJson = JSON.parse(
 	fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
 );
 
+// Detect development mode
+const isDevelopment = process.env.BACKLOG_ENV === 'development';
+const programName = isDevelopment ? 'backlog-mcp-dev' : 'backlog-mcp';
+const programDescription = isDevelopment 
+	? 'Backlog.md MCP Server (Development Mode) - Integrate Backlog.md with MCP clients'
+	: 'Backlog.md MCP Server - Integrate Backlog.md with MCP clients';
+
 program
-	.name('backlog-mcp')
-	.description('Backlog.md MCP Server - Integrate Backlog.md with MCP clients')
+	.name(programName)
+	.description(programDescription)
 	.version(packageJson.version);
 
 // Start command - runs the MCP server
@@ -111,6 +118,13 @@ program
 	.action(async () => {
 		try {
 			console.log('Validating Backlog.md MCP setup...\n');
+			
+			// Show mode information
+			if (isDevelopment) {
+				console.log(chalk.yellow('🧪 Running in DEVELOPMENT mode'));
+				console.log(chalk.gray(`   Config directory: ${process.env.BACKLOG_CONFIG_DIR || '~/.config/backlog-mcp-dev'}`));
+				console.log('');
+			}
 			
 			// Check if Backlog.md is initialized
 			if (!config.isBacklogInitialized()) {

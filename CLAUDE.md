@@ -83,19 +83,44 @@ claude mcp add backlog-md --scope project -- backlog-mcp start
 
 ## Development
 
-### Building from Source
+This project uses a dual-environment approach that allows you to develop the MCP server while maintaining a stable version for daily use.
 
+### Development Workflow for Contributors
+
+**🧪 Quick Development Mode**
 ```bash
 # Clone the repository
 git clone --recursive https://github.com/radleta/Backlog.md-mcp.git
 cd Backlog.md-mcp
 
-# Build the project
+# Build and test
 ./build.sh
+./dev.sh validate
 
-# Install globally
-cd package
-npm install -g .
+# Make changes in source/src/
+# Test changes
+./dev.sh start --transport http --port 3001
+```
+
+**🔄 Development vs Production**
+
+| Environment | Command | Config Directory | Purpose |
+|-------------|---------|-----------------|---------|
+| **Development** | `./dev.sh` | `~/.config/backlog-mcp-dev` | Testing changes |
+| **Production** | `backlog-mcp` | `~/.config/backlog-mcp` | Stable daily use |
+
+**⚡ Convenience Scripts**
+
+- `./dev.sh` - Access development version easily
+- `./test-mcp.sh` - Run full test suite and validation
+
+### Building from Source
+
+```bash
+# Clone and build
+git clone --recursive https://github.com/radleta/Backlog.md-mcp.git
+cd Backlog.md-mcp
+./build.sh
 ```
 
 ### Running Tests
@@ -105,6 +130,35 @@ cd source
 npm test
 npm run typecheck
 npm run lint
+
+# Or run full integration test
+./test-mcp.sh
+```
+
+### Development with Claude Code
+
+```bash
+# Add development version to Claude Code
+claude mcp add backlog-md-dev -- node /absolute/path/to/Backlog.md-mcp/package/bin/backlog-mcp-dev start
+
+# Switch between versions
+claude mcp remove backlog-md-dev  # Remove dev
+claude mcp add backlog-md -- backlog-mcp start  # Use production
+
+# Or keep both configured with different names
+```
+
+### Installing for Production Use
+
+When you have a stable version you want to use daily:
+
+```bash
+cd package
+npm install -g .
+
+# Now use normally
+backlog-mcp validate
+claude mcp add backlog-md -- backlog-mcp start
 ```
 
 ### Project Structure

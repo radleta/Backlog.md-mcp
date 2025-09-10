@@ -5,10 +5,26 @@ import os from 'os';
 import { existsSync } from 'fs';
 
 /**
+ * Get the configuration directory path based on environment
+ */
+function getConfigDir(): string {
+	const isDevelopment = process.env.BACKLOG_ENV === 'development';
+	const customConfigDir = process.env.BACKLOG_CONFIG_DIR;
+	
+	if (customConfigDir) {
+		return customConfigDir;
+	}
+	
+	const baseName = isDevelopment ? '.backlog-mcp-dev' : '.backlog-mcp';
+	return path.join(os.homedir(), baseName);
+}
+
+/**
  * Get local Backlog MCP configuration
  */
 export async function getLocalConfig(): Promise<any> {
-	const configPath = path.join(os.homedir(), '.backlog-mcp', 'config.json');
+	const configDir = getConfigDir();
+	const configPath = path.join(configDir, 'config.json');
 	try {
 		const content = await fs.readFile(configPath, 'utf-8');
 		return JSON.parse(content);
@@ -21,7 +37,7 @@ export async function getLocalConfig(): Promise<any> {
  * Save local Backlog MCP configuration
  */
 export async function saveLocalConfig(config: any): Promise<void> {
-	const configDir = path.join(os.homedir(), '.backlog-mcp');
+	const configDir = getConfigDir();
 	const configPath = path.join(configDir, 'config.json');
 	
 	await fs.mkdir(configDir, { recursive: true });
