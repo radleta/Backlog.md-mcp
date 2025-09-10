@@ -92,6 +92,10 @@ Before using the MCP server, ensure:
 - **Initialization**: The `backlog init` command cannot be implemented through MCP as it requires interactive user input. Projects must be initialized manually before using the MCP server.
 - **Interactive Commands**: Any Backlog.md commands that require user interaction are not available through the MCP interface.
 
+### Known Issues
+
+- **Multi-instance Race Conditions**: Multiple Claude instances using the same MCP server on the same project may cause file conflicts and data corruption. See [task-001](backlog/tasks/task-001%20-%20File-operation-race-conditions-with-multiple-MCP-instances.md) for details and planned fixes.
+
 ### Tool Parameter Details
 
 - **task_create**: 
