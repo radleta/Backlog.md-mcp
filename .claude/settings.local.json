@@ -13,7 +13,16 @@
       "mcp__backlog-md__board_show",
       "mcp__backlog-md__task_edit",
       "mcp__backlog-md__task_archive",
-      "mcp__backlog-md__config_get"
+      "mcp__backlog-md__config_get",
+      "mcp__backlog-md__config_list",
+      "mcp__backlog-md__draft_create",
+      "mcp__backlog-md__draft_list",
+      "mcp__backlog-md__doc_create",
+      "mcp__backlog-md__decision_create",
+      "mcp__backlog-md__doc_list",
+      "mcp__backlog-md__decision_list",
+      "mcp__backlog-md__draft_archive",
+      "mcp__backlog-md__overview"
     ],
     "deny": [],
     "ask": []

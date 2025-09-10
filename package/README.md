@@ -7,27 +7,51 @@ This repository provides an MCP (Model Context Protocol) server that integrates 
 ### 🛠️ Available Tools
 
 - **Task Management**
-  - `task_create` - Create new tasks with title, description, status, priority, and tags
+  - `task_create` - Create new tasks with full support for title, description, status, priority, tags, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
   - `task_list` - List tasks with filtering by status, tag, or priority  
-  - `task_edit` - Edit existing tasks
-  - `task_move` - Move tasks between status columns
-  - `task_delete` - Delete tasks
+  - `task_edit` - Edit existing tasks with comprehensive support for all task properties, acceptance criteria management (add/remove/check/uncheck), label management, and custom ordering
+  - `task_view` - View detailed task information
+  - `task_archive` - Archive tasks
+  - `task_demote` - Demote tasks to draft status
 
-- **Board & Sprint Management**
+- **Draft Management**
+  - `draft_create` - Create draft tasks with title, description, assignee, and labels
+  - `draft_list` - List all draft tasks
+  - `draft_promote` - Promote draft tasks to full tasks
+  - `draft_archive` - Archive draft tasks
+  - `draft_view` - View draft task details
+
+- **Documentation**
+  - `doc_create` - Create documentation files with optional path and type
+  - `doc_list` - List all documentation files
+  - `doc_view` - View specific documentation files
+
+- **Decision Records**
+  - `decision_create` - Create decision records with status (proposed/accepted/rejected/superseded)
+
+- **Board & Project Management**
   - `board_show` - Display the Kanban board
-  - `sprint_create` - Create new sprints
-  - `sprint_current` - Show current sprint details
+  - `board_export` - Export Kanban board to markdown with options for custom filename, force overwrite, README integration, and version tagging
+  - `overview` - Show project statistics and overview
+  - `cleanup` - Move old completed tasks to archive folder
 
 - **Configuration**
-  - `config_get` - Get configuration values
+  - `config_get` - Get specific configuration values
   - `config_set` - Set configuration values
+  - `config_list` - List all configuration values
+
+- **Web Interface & Utilities**
+  - `browser` - Launch web interface with optional port and browser settings
+  - `agents_update` - Update agent instruction files (.cursorrules, CLAUDE.md, AGENTS.md, etc.)
 
 ### 📚 Available Resources
 
 - `backlog://tasks/all` - View all tasks in markdown format
 - `backlog://board` - Current Kanban board view
 - `backlog://config` - Configuration settings
-- `backlog://sprint/current` - Current sprint details
+- `backlog://drafts/all` - View all draft tasks in markdown format
+- `backlog://docs/all` - View all documentation files
+- `backlog://overview` - Project statistics and overview
 
 ## Installation
 

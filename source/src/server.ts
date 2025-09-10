@@ -98,6 +98,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 						items: { type: "string" },
 						description: "Task tags (optional)",
 					},
+					assignee: { type: "string", description: "Task assignee (optional)" },
+					plan: { type: "string", description: "Implementation plan (optional)" },
+					notes: { type: "string", description: "Implementation notes (optional)" },
+					ac: {
+						type: "array",
+						items: { type: "string" },
+						description: "Acceptance criteria (optional)",
+					},
+					dependencies: { type: "string", description: "Comma-separated task dependencies (optional)" },
+					parent: { type: "string", description: "Parent task ID for creating subtasks (optional)" },
+					draft: { type: "boolean", description: "Create as draft task (optional)" },
 				},
 				required: ["title"],
 			},
@@ -141,6 +152,33 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 						enum: ["low", "medium", "high", "urgent"],
 						description: "New priority (optional)",
 					},
+					assignee: { type: "string", description: "Task assignee (optional)" },
+					plan: { type: "string", description: "Implementation plan (optional)" },
+					notes: { type: "string", description: "Implementation notes (optional)" },
+					ac: {
+						type: "array",
+						items: { type: "string" },
+						description: "Add acceptance criteria (optional)",
+					},
+					removeAc: {
+						type: "array",
+						items: { type: "number" },
+						description: "Remove acceptance criteria by index (optional)",
+					},
+					checkAc: {
+						type: "array",
+						items: { type: "number" },
+						description: "Mark acceptance criteria as done by index (optional)",
+					},
+					uncheckAc: {
+						type: "array",
+						items: { type: "number" },
+						description: "Mark acceptance criteria as not done by index (optional)",
+					},
+					dependencies: { type: "string", description: "Comma-separated task dependencies (optional)" },
+					addLabel: { type: "string", description: "Add a single label (optional)" },
+					removeLabel: { type: "string", description: "Remove a single label (optional)" },
+					ordinal: { type: "number", description: "Set task ordinal for custom ordering (optional)" },
 				},
 				required: ["taskId"],
 			},
@@ -198,6 +236,176 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 				required: ["key", "value"],
 			},
 		},
+		{
+			name: "config_list",
+			description: "List all configuration values",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+		},
+		{
+			name: "draft_create",
+			description: "Create a new draft task",
+			inputSchema: {
+				type: "object",
+				properties: {
+					title: { type: "string", description: "Draft task title" },
+					description: { type: "string", description: "Draft task description (optional)" },
+					assignee: { type: "string", description: "Task assignee (optional)" },
+					labels: { type: "string", description: "Comma-separated labels (optional)" },
+				},
+				required: ["title"],
+			},
+		},
+		{
+			name: "draft_list",
+			description: "List all draft tasks",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+		},
+		{
+			name: "draft_promote",
+			description: "Promote a draft task to a full task",
+			inputSchema: {
+				type: "object",
+				properties: {
+					taskId: { type: "string", description: "Draft task ID to promote" },
+				},
+				required: ["taskId"],
+			},
+		},
+		{
+			name: "draft_archive",
+			description: "Archive a draft task",
+			inputSchema: {
+				type: "object",
+				properties: {
+					taskId: { type: "string", description: "Draft task ID to archive" },
+				},
+				required: ["taskId"],
+			},
+		},
+		{
+			name: "draft_view",
+			description: "View a draft task's details",
+			inputSchema: {
+				type: "object",
+				properties: {
+					taskId: { type: "string", description: "Draft task ID to view" },
+				},
+				required: ["taskId"],
+			},
+		},
+		{
+			name: "task_demote",
+			description: "Demote a task to draft status",
+			inputSchema: {
+				type: "object",
+				properties: {
+					taskId: { type: "string", description: "Task ID to demote" },
+				},
+				required: ["taskId"],
+			},
+		},
+		{
+			name: "doc_create",
+			description: "Create a new documentation file",
+			inputSchema: {
+				type: "object",
+				properties: {
+					title: { type: "string", description: "Document title" },
+					path: { type: "string", description: "Document path (optional, e.g. 'guides/setup')" },
+					type: { type: "string", description: "Document type (optional, e.g. 'technical')" },
+				},
+				required: ["title"],
+			},
+		},
+		{
+			name: "doc_list",
+			description: "List all documentation files",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+		},
+		{
+			name: "doc_view",
+			description: "View a specific documentation file",
+			inputSchema: {
+				type: "object",
+				properties: {
+					docId: { type: "string", description: "Document ID to view" },
+				},
+				required: ["docId"],
+			},
+		},
+		{
+			name: "decision_create",
+			description: "Create a new decision record",
+			inputSchema: {
+				type: "object",
+				properties: {
+					title: { type: "string", description: "Decision title" },
+					status: {
+						type: "string",
+						enum: ["proposed", "accepted", "rejected", "superseded"],
+						description: "Decision status (optional)",
+					},
+				},
+				required: ["title"],
+			},
+		},
+		{
+			name: "board_export",
+			description: "Export Kanban board to markdown file",
+			inputSchema: {
+				type: "object",
+				properties: {
+					filename: { type: "string", description: "Output filename (optional)" },
+					force: { type: "boolean", description: "Overwrite existing file without confirmation" },
+					readme: { type: "boolean", description: "Export to README.md with markers" },
+					exportVersion: { type: "string", description: "Version to include in the export" },
+				},
+			},
+		},
+		{
+			name: "overview",
+			description: "Show project overview and statistics",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+		},
+		{
+			name: "cleanup",
+			description: "Move old completed tasks to archive",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+		},
+		{
+			name: "browser",
+			description: "Launch web interface",
+			inputSchema: {
+				type: "object",
+				properties: {
+					port: { type: "number", description: "Port number for web server (optional)" },
+					noOpen: { type: "boolean", description: "Don't open browser automatically" },
+				},
+			},
+		},
+		{
+			name: "agents_update",
+			description: "Update agent instruction files",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+		},
 	],
 }));
 
@@ -221,6 +429,24 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => ({
 			name: "Configuration",
 			description: "Current backlog configuration",
 			mimeType: "application/json",
+		},
+		{
+			uri: "backlog://drafts/all",
+			name: "All Draft Tasks",
+			description: "View all draft tasks in the backlog",
+			mimeType: "text/markdown",
+		},
+		{
+			uri: "backlog://docs/all",
+			name: "All Documentation",
+			description: "View all documentation files",
+			mimeType: "text/markdown",
+		},
+		{
+			uri: "backlog://overview",
+			name: "Project Overview",
+			description: "Project statistics and overview",
+			mimeType: "text/plain",
 		},
 	],
 }));
@@ -266,6 +492,42 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request: any) => {
 				],
 			};
 		}
+		case "backlog://drafts/all": {
+			const drafts = await runBacklogCommand(["draft", "list", "--plain"]);
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "text/markdown",
+						text: drafts,
+					},
+				],
+			};
+		}
+		case "backlog://docs/all": {
+			const docs = await runBacklogCommand(["doc", "list", "--plain"]);
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "text/markdown",
+						text: docs,
+					},
+				],
+			};
+		}
+		case "backlog://overview": {
+			const overview = await runBacklogCommand(["overview"]);
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "text/plain",
+						text: overview,
+					},
+				],
+			};
+		}
 		default:
 			throw new Error(`Unknown resource: ${uri}`);
 	}
@@ -282,8 +544,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 				if (args.description) cmdArgs.push("--description", args.description);
 				if (args.status) cmdArgs.push("--status", args.status);
 				if (args.priority) cmdArgs.push("--priority", args.priority);
+				if (args.assignee) cmdArgs.push("--assignee", args.assignee);
+				if (args.plan) cmdArgs.push("--plan", args.plan);
+				if (args.notes) cmdArgs.push("--notes", args.notes);
+				if (args.dependencies) cmdArgs.push("--dep", args.dependencies);
+				if (args.parent) cmdArgs.push("--parent", args.parent);
+				if (args.draft) cmdArgs.push("--draft");
 				if (args.tags && args.tags.length > 0) {
 					cmdArgs.push("--labels", args.tags.join(","));
+				}
+				if (args.ac && args.ac.length > 0) {
+					args.ac.forEach((criterion: string) => {
+						cmdArgs.push("--ac", criterion);
+					});
 				}
 				const result = await runBacklogCommand(cmdArgs);
 				return { content: [{ type: "text", text: result }] };
@@ -304,6 +577,33 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 				if (args.description) cmdArgs.push("--description", args.description);
 				if (args.status) cmdArgs.push("--status", args.status);
 				if (args.priority) cmdArgs.push("--priority", args.priority);
+				if (args.assignee) cmdArgs.push("--assignee", args.assignee);
+				if (args.plan) cmdArgs.push("--plan", args.plan);
+				if (args.notes) cmdArgs.push("--notes", args.notes);
+				if (args.dependencies) cmdArgs.push("--dep", args.dependencies);
+				if (args.ordinal) cmdArgs.push("--ordinal", args.ordinal.toString());
+				if (args.addLabel) cmdArgs.push("--add-label", args.addLabel);
+				if (args.removeLabel) cmdArgs.push("--remove-label", args.removeLabel);
+				if (args.ac && args.ac.length > 0) {
+					args.ac.forEach((criterion: string) => {
+						cmdArgs.push("--ac", criterion);
+					});
+				}
+				if (args.removeAc && args.removeAc.length > 0) {
+					args.removeAc.forEach((index: number) => {
+						cmdArgs.push("--remove-ac", index.toString());
+					});
+				}
+				if (args.checkAc && args.checkAc.length > 0) {
+					args.checkAc.forEach((index: number) => {
+						cmdArgs.push("--check-ac", index.toString());
+					});
+				}
+				if (args.uncheckAc && args.uncheckAc.length > 0) {
+					args.uncheckAc.forEach((index: number) => {
+						cmdArgs.push("--uncheck-ac", index.toString());
+					});
+				}
 				const result = await runBacklogCommand(cmdArgs);
 				return { content: [{ type: "text", text: result }] };
 			}
@@ -331,6 +631,104 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 
 			case "config_set": {
 				const result = await runBacklogCommand(["config", "set", args.key, args.value]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "config_list": {
+				const result = await runBacklogCommand(["config", "list"]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "draft_create": {
+				const cmdArgs = ["draft", "create", args.title];
+				if (args.description) cmdArgs.push("--description", args.description);
+				if (args.assignee) cmdArgs.push("--assignee", args.assignee);
+				if (args.labels) cmdArgs.push("--labels", args.labels);
+				const result = await runBacklogCommand(cmdArgs);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "draft_list": {
+				const result = await runBacklogCommand(["draft", "list", "--plain"]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "draft_promote": {
+				const result = await runBacklogCommand(["draft", "promote", args.taskId]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "draft_archive": {
+				const result = await runBacklogCommand(["draft", "archive", args.taskId]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "draft_view": {
+				const result = await runBacklogCommand(["draft", "view", args.taskId, "--plain"]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "task_demote": {
+				const result = await runBacklogCommand(["task", "demote", args.taskId]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "doc_create": {
+				const cmdArgs = ["doc", "create", args.title];
+				if (args.path) cmdArgs.push("--path", args.path);
+				if (args.type) cmdArgs.push("--type", args.type);
+				const result = await runBacklogCommand(cmdArgs);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "doc_list": {
+				const result = await runBacklogCommand(["doc", "list", "--plain"]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "doc_view": {
+				const result = await runBacklogCommand(["doc", "view", args.docId]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "decision_create": {
+				const cmdArgs = ["decision", "create", args.title];
+				if (args.status) cmdArgs.push("--status", args.status);
+				const result = await runBacklogCommand(cmdArgs);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+
+			case "board_export": {
+				const cmdArgs = ["board", "export"];
+				if (args.filename) cmdArgs.push(args.filename);
+				if (args.force) cmdArgs.push("--force");
+				if (args.readme) cmdArgs.push("--readme");
+				if (args.exportVersion) cmdArgs.push("--export-version", args.exportVersion);
+				const result = await runBacklogCommand(cmdArgs);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "overview": {
+				const result = await runBacklogCommand(["overview"]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "cleanup": {
+				const result = await runBacklogCommand(["cleanup"]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "browser": {
+				const cmdArgs = ["browser"];
+				if (args.port) cmdArgs.push("--port", args.port.toString());
+				if (args.noOpen) cmdArgs.push("--no-open");
+				const result = await runBacklogCommand(cmdArgs);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "agents_update": {
+				const result = await runBacklogCommand(["agents", "--update-instructions"]);
 				return { content: [{ type: "text", text: result }] };
 			}
 
