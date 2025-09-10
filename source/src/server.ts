@@ -8,6 +8,8 @@ import {
 	ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { spawn } from 'child_process';
+import { readdir, readFile } from 'fs/promises';
+import { join } from 'path';
 import { getBacklogCliPath, isBacklogInitialized } from './config.js';
 
 // Initialize MCP server
@@ -23,6 +25,101 @@ export const server = new Server(
 		},
 	}
 );
+
+
+// Helper to group tasks by priority (read-only)
+async function groupTasksByPriority(): Promise<string> {
+	try {
+		const priorities = ['high', 'medium', 'low'];
+		let result = '';
+		
+		for (const priority of priorities) {
+			const tasks = await runBacklogCommand(["task", "list", "--priority", priority, "--plain"]);
+			if (tasks.trim()) {
+				result += `## ${priority.charAt(0).toUpperCase() + priority.slice(1)} Priority\n\n`;
+				tasks.split('\n').filter(line => line.trim()).forEach(task => {
+					result += `- ${task}\n`;
+				});
+				result += '\n';
+			}
+		}
+		
+		// Add tasks with no priority
+		try {
+			const allTasks = await runBacklogCommand(["task", "list", "--plain"]);
+			const lines = allTasks.split('\n').filter(line => line.trim());
+			const noPriorityTasks = [];
+			
+			for (const line of lines) {
+				// Check if line contains priority markers
+				if (!line.match(/\*#(high|medium|low)\*/)) {
+					noPriorityTasks.push(line);
+				}
+			}
+			
+			if (noPriorityTasks.length > 0) {
+				result += `## No Priority\n\n`;
+				noPriorityTasks.forEach(task => result += `- ${task}\n`);
+			}
+		} catch {
+			// Ignore errors for no-priority tasks
+		}
+		
+		return result || 'No tasks found.';
+	} catch (error) {
+		return `Error grouping tasks by priority: ${error instanceof Error ? error.message : 'Unknown error'}`;
+	}
+}
+
+// Helper to list decision files directly from filesystem (read-only)
+async function listDecisionFiles(projectDir: string): Promise<string> {
+	try {
+		const decisionsDir = join(projectDir, 'backlog', 'decisions');
+		const files = await readdir(decisionsDir);
+		
+		// Filter for decision files (skip readme.md)
+		const decisionFiles = files.filter(file => 
+			file.endsWith('.md') && 
+			file !== 'readme.md' && 
+			file.startsWith('decision-')
+		);
+		
+		if (decisionFiles.length === 0) {
+			return "No decision records found.";
+		}
+		
+		// Read first few lines of each decision to get title and status
+		const decisions = await Promise.all(
+			decisionFiles.map(async (file) => {
+				try {
+					const filePath = join(decisionsDir, file);
+					const content = await readFile(filePath, 'utf-8');
+					const lines = content.split('\n');
+					
+					// Extract ID from filename (decision-1 -> 1)
+					const idMatch = file.match(/decision-(.+?) -/);
+					const id = idMatch?.[1] ?? file.replace('.md', '');
+					
+					// Extract title from filename or first header
+					const titleMatch = file.match(/decision-.+? - (.+)\.md$/);
+					const title = titleMatch?.[1]?.replace(/-/g, ' ') ?? 'Unknown';
+					
+					// Look for status in the content
+					const statusLine = lines.find(line => line.toLowerCase().includes('status:'));
+					const status = statusLine ? statusLine.split(':')[1]?.trim() || 'Unknown' : 'Unknown';
+					
+					return `**${id}** - ${title} [${status}]`;
+				} catch {
+					return `**${file}** - Failed to read`;
+				}
+			})
+		);
+		
+		return decisions.join('\n');
+	} catch (error) {
+		return `Error reading decisions: ${error instanceof Error ? error.message : 'Unknown error'}`;
+	}
+}
 
 // Helper to run backlog CLI commands
 async function runBacklogCommand(args: string[]): Promise<string> {
@@ -90,7 +187,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 					},
 					priority: {
 						type: "string",
-						enum: ["low", "medium", "high", "urgent"],
+						enum: ["low", "medium", "high"],
 						description: "Task priority (optional)",
 					},
 					tags: {
@@ -127,8 +224,15 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 					tag: { type: "string", description: "Filter by tag" },
 					priority: {
 						type: "string",
-						enum: ["low", "medium", "high", "urgent"],
+						enum: ["low", "medium", "high"],
 						description: "Filter by priority",
+					},
+					assignee: { type: "string", description: "Filter by assignee" },
+					parent: { type: "string", description: "Filter by parent task ID" },
+					sort: {
+						type: "string",
+						enum: ["priority", "id"],
+						description: "Sort tasks by field",
 					},
 				},
 			},
@@ -149,7 +253,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 					},
 					priority: {
 						type: "string",
-						enum: ["low", "medium", "high", "urgent"],
+						enum: ["low", "medium", "high"],
 						description: "New priority (optional)",
 					},
 					assignee: { type: "string", description: "Task assignee (optional)" },
@@ -406,6 +510,44 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 				properties: {},
 			},
 		},
+		{
+			name: "sequence_list",
+			description: "List execution sequences computed from task dependencies",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+		},
+		{
+			name: "decision_list",
+			description: "List all decision records",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+		},
+		{
+			name: "task_dependencies",
+			description: "View dependency graph for a specific task",
+			inputSchema: {
+				type: "object",
+				properties: {
+					taskId: { type: "string", description: "Task ID to view dependencies for" },
+				},
+				required: ["taskId"],
+			},
+		},
+		{
+			name: "task_children",
+			description: "List all children of a parent task",
+			inputSchema: {
+				type: "object",
+				properties: {
+					taskId: { type: "string", description: "Parent task ID" },
+				},
+				required: ["taskId"],
+			},
+		},
 	],
 }));
 
@@ -446,6 +588,30 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => ({
 			uri: "backlog://overview",
 			name: "Project Overview",
 			description: "Project statistics and overview",
+			mimeType: "text/plain",
+		},
+		{
+			uri: "backlog://sequences",
+			name: "Task Sequences",
+			description: "Execution sequences computed from task dependencies",
+			mimeType: "text/plain",
+		},
+		{
+			uri: "backlog://decisions/all",
+			name: "All Decision Records",
+			description: "View all decision records",
+			mimeType: "text/markdown",
+		},
+		{
+			uri: "backlog://tasks/by-priority",
+			name: "Tasks by Priority",
+			description: "View tasks grouped by priority",
+			mimeType: "text/markdown",
+		},
+		{
+			uri: "backlog://statistics",
+			name: "Project Statistics",
+			description: "Enhanced project statistics and metrics",
 			mimeType: "text/plain",
 		},
 	],
@@ -528,6 +694,73 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request: any) => {
 				],
 			};
 		}
+		case "backlog://sequences": {
+			const sequences = await runBacklogCommand(["sequence", "list", "--plain"]);
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "text/plain",
+						text: sequences,
+					},
+				],
+			};
+		}
+		case "backlog://decisions/all": {
+			const projectDir = process.env.PWD || process.cwd();
+			const decisions = await listDecisionFiles(projectDir);
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "text/markdown",
+						text: decisions,
+					},
+				],
+			};
+		}
+		case "backlog://tasks/by-priority": {
+			const tasks = await groupTasksByPriority();
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "text/markdown",
+						text: tasks,
+					},
+				],
+			};
+		}
+		case "backlog://statistics": {
+			// Enhanced statistics combining overview with additional metrics
+			const overview = await runBacklogCommand(["overview"]);
+			const allTasks = await runBacklogCommand(["task", "list", "--plain"]);
+			
+			// Add some basic analytics
+			let enhancedStats = overview + '\n\n## Additional Metrics\n\n';
+			
+			const taskLines = allTasks.split('\n').filter(line => line.trim());
+			enhancedStats += `Total Tasks Listed: ${taskLines.length}\n`;
+			
+			// Count by status (basic parsing)
+			const todoTasks = taskLines.filter(line => line.includes('To Do')).length;
+			const inProgressTasks = taskLines.filter(line => line.includes('In Progress')).length;
+			const doneTasks = taskLines.filter(line => line.includes('Done')).length;
+			
+			enhancedStats += `- To Do: ${todoTasks}\n`;
+			enhancedStats += `- In Progress: ${inProgressTasks}\n`;
+			enhancedStats += `- Done: ${doneTasks}\n`;
+			
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "text/plain",
+						text: enhancedStats,
+					},
+				],
+			};
+		}
 		default:
 			throw new Error(`Unknown resource: ${uri}`);
 	}
@@ -567,6 +800,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 				if (args.status && args.status !== "all") cmdArgs.push("--status", args.status);
 				if (args.tag) cmdArgs.push("--labels", args.tag);
 				if (args.priority) cmdArgs.push("--priority", args.priority);
+				if (args.assignee) cmdArgs.push("--assignee", args.assignee);
+				if (args.parent) cmdArgs.push("--parent", args.parent);
+				if (args.sort) cmdArgs.push("--sort", args.sort);
 				const result = await runBacklogCommand(cmdArgs);
 				return { content: [{ type: "text", text: result }] };
 			}
@@ -730,6 +966,38 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 			case "agents_update": {
 				const result = await runBacklogCommand(["agents", "--update-instructions"]);
 				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "sequence_list": {
+				const result = await runBacklogCommand(["sequence", "list", "--plain"]);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "decision_list": {
+				const projectDir = process.env.PWD || process.cwd();
+				const result = await listDecisionFiles(projectDir);
+				return { content: [{ type: "text", text: result }] };
+			}
+
+			case "task_dependencies": {
+				const taskResult = await runBacklogCommand(["task", "view", args.taskId, "--plain"]);
+				
+				// Look for Dependencies: line
+				const lines = taskResult.split('\n');
+				const depLine = lines.find(line => line.startsWith('Dependencies:'));
+				
+				if (depLine && depLine.length > 'Dependencies:'.length) {
+					const deps = depLine.substring('Dependencies:'.length).trim();
+					return { content: [{ type: "text", text: `**Dependencies:** ${deps}` }] };
+				}
+				
+				return { content: [{ type: "text", text: `Task ${args.taskId} has no dependencies.` }] };
+			}
+
+			case "task_children": {
+				// Use task list with parent filter to get children
+				const result = await runBacklogCommand(["task", "list", "--parent", args.taskId, "--plain"]);
+				return { content: [{ type: "text", text: result || `No child tasks found for ${args.taskId}.` }] };
 			}
 
 			default:

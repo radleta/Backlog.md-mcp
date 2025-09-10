@@ -10,11 +10,13 @@ The Backlog.md MCP Server wraps the Backlog.md CLI tool to provide structured ac
 
 ### Task Management
 - `task_create` - Create new tasks with full support for title, description, status, priority, tags, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
-- `task_list` - List tasks with filtering by status, tag, or priority  
+- `task_list` - List tasks with enhanced filtering by status, tag, priority, assignee, parent task ID, and sorting options (priority, id)
 - `task_edit` - Edit existing tasks with comprehensive support for all task properties, acceptance criteria management (add/remove/check/uncheck), label management, and custom ordering
 - `task_view` - View detailed task information
 - `task_archive` - Archive tasks
 - `task_demote` - Demote tasks to draft status
+- `task_dependencies` - View dependency graph for a specific task
+- `task_children` - List all children of a parent task
 
 ### Draft Management
 - `draft_create` - Create draft tasks with title, description, assignee, and labels
@@ -30,12 +32,14 @@ The Backlog.md MCP Server wraps the Backlog.md CLI tool to provide structured ac
 
 ### Decision Records
 - `decision_create` - Create decision records with status (proposed/accepted/rejected/superseded)
+- `decision_list` - List all decision records with titles and status
 
 ### Board & Project Management
 - `board_show` - Display the Kanban board
 - `board_export` - Export Kanban board to markdown with options for custom filename, force overwrite, README integration, and version tagging
 - `overview` - Show project statistics and overview
 - `cleanup` - Move old completed tasks to archive folder
+- `sequence_list` - List execution sequences computed from task dependencies
 
 ### Configuration
 - `config_get` - Get specific configuration values
@@ -55,6 +59,10 @@ The server exposes these resources for reading:
 - `backlog://drafts/all` - View all draft tasks in markdown format
 - `backlog://docs/all` - View all documentation files
 - `backlog://overview` - Project statistics and overview
+- `backlog://sequences` - Execution sequences computed from task dependencies
+- `backlog://decisions/all` - View all decision records
+- `backlog://tasks/by-priority` - Tasks grouped by priority
+- `backlog://statistics` - Enhanced project statistics and metrics
 
 ## Setup Instructions
 

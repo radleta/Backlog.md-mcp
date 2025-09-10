@@ -8,11 +8,13 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
 
 - **Task Management**
   - `task_create` - Create new tasks with full support for title, description, status, priority, tags, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
-  - `task_list` - List tasks with filtering by status, tag, or priority  
+  - `task_list` - List tasks with enhanced filtering by status, tag, priority, assignee, parent task ID, and sorting options (priority, id)
   - `task_edit` - Edit existing tasks with comprehensive support for all task properties, acceptance criteria management (add/remove/check/uncheck), label management, and custom ordering
   - `task_view` - View detailed task information
   - `task_archive` - Archive tasks
   - `task_demote` - Demote tasks to draft status
+  - `task_dependencies` - View dependency graph for a specific task
+  - `task_children` - List all children of a parent task
 
 - **Draft Management**
   - `draft_create` - Create draft tasks with title, description, assignee, and labels
@@ -28,12 +30,14 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
 
 - **Decision Records**
   - `decision_create` - Create decision records with status (proposed/accepted/rejected/superseded)
+  - `decision_list` - List all decision records with titles and status
 
 - **Board & Project Management**
   - `board_show` - Display the Kanban board
   - `board_export` - Export Kanban board to markdown with options for custom filename, force overwrite, README integration, and version tagging
   - `overview` - Show project statistics and overview
   - `cleanup` - Move old completed tasks to archive folder
+  - `sequence_list` - List execution sequences computed from task dependencies
 
 - **Configuration**
   - `config_get` - Get specific configuration values
@@ -44,6 +48,18 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
   - `browser` - Launch web interface with optional port and browser settings
   - `agents_update` - Update agent instruction files (.cursorrules, CLAUDE.md, AGENTS.md, etc.)
 
+## Design Philosophy
+
+The Backlog.md MCP Server is designed as a complete wrapper around the Backlog.md CLI, following these principles:
+
+- **Complete CLI Coverage**: Exposes all available Backlog.md CLI commands through the MCP interface
+- **Read-Only Enhancements**: Provides additional read-only helpers (like task aggregation and grouping) that don't modify data
+- **Write Operation Integrity**: All data modifications go exclusively through the official CLI commands to maintain data consistency
+- **No Custom Write Logic**: We deliberately don't implement custom edit capabilities to avoid breaking Backlog.md's internal write implementation
+- **Non-Interactive Operations**: Commands that require user interaction (like `backlog init`) cannot be implemented through MCP
+
+This approach ensures the MCP server remains a reliable, maintainable wrapper that respects Backlog.md's architecture while providing useful programmatic access for AI assistants.
+
 ### 📚 Available Resources
 
 - `backlog://tasks/all` - View all tasks in markdown format
@@ -52,6 +68,10 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
 - `backlog://drafts/all` - View all draft tasks in markdown format
 - `backlog://docs/all` - View all documentation files
 - `backlog://overview` - Project statistics and overview
+- `backlog://sequences` - Execution sequences computed from task dependencies
+- `backlog://decisions/all` - View all decision records
+- `backlog://tasks/by-priority` - Tasks grouped by priority levels
+- `backlog://statistics` - Enhanced project statistics and metrics
 
 ## Prerequisites
 
@@ -67,13 +87,18 @@ Before using the MCP server, ensure:
 - **Non-interactive mode**: The MCP server automatically uses `--plain` flags to prevent interactive prompts
 - **Tags**: Use the `tags` parameter in MCP commands, which maps to `--labels` in the CLI
 
+### Limitations
+
+- **Initialization**: The `backlog init` command cannot be implemented through MCP as it requires interactive user input. Projects must be initialized manually before using the MCP server.
+- **Interactive Commands**: Any Backlog.md commands that require user interaction are not available through the MCP interface.
+
 ### Tool Parameter Details
 
 - **task_create**: 
   - `title` (required): Task title as a string
   - `description` (optional): Task description
   - `status` (optional): Must be exact: "To Do", "In Progress", or "Done"
-  - `priority` (optional): "low", "medium", "high", or "urgent"
+  - `priority` (optional): "low", "medium", or "high"
   - `tags` (optional): Array of strings (mapped to `--labels` in CLI)
 
 - **task_list**:

@@ -22,7 +22,10 @@
       "mcp__backlog-md__doc_list",
       "mcp__backlog-md__decision_list",
       "mcp__backlog-md__draft_archive",
-      "mcp__backlog-md__overview"
+      "mcp__backlog-md__overview",
+      "mcp__backlog-md__sequence_list",
+      "mcp__backlog-md__task_dependencies",
+      "mcp__backlog-md__task_children"
     ],
     "deny": [],
     "ask": []
