@@ -7,8 +7,8 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
 ### 🛠️ Available Tools
 
 - **Task Management**
-  - `task_create` - Create new tasks with full support for title, description, status, priority, tags, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
-  - `task_list` - List tasks with enhanced filtering by status, tag, priority, assignee, parent task ID, and sorting options (priority, id)
+  - `task_create` - Create new tasks with full support for title, description, status, priority, labels, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
+  - `task_list` - List tasks with enhanced filtering by status, label, priority, assignee, parent task ID, and sorting options (priority, id)
   - `task_edit` - Edit existing tasks with comprehensive support for all task properties, acceptance criteria management (add/remove/check/uncheck), label management, and custom ordering
   - `task_view` - View detailed task information
   - `task_archive` - Archive tasks
@@ -60,6 +60,56 @@ The Backlog.md MCP Server is designed as a complete wrapper around the Backlog.m
 
 This approach ensures the MCP server remains a reliable, maintainable wrapper that respects Backlog.md's architecture while providing useful programmatic access for AI assistants.
 
+## MCP Server Enhancements
+
+This MCP server provides additional functionality beyond the native Backlog.md CLI:
+
+### Enhanced Features (MCP-only)
+- **Label filtering in task_list**: Filter tasks by label (implemented client-side as the CLI doesn't support this natively)
+- **Resource aggregation**: View tasks grouped by priority (`backlog://tasks/by-priority`)
+- **Enhanced statistics**: Additional metrics beyond native overview (`backlog://statistics`)
+- **Decision list tool**: Custom `decision_list` with status parsing (CLI only has `decision create`)
+- **Decision resources**: Parsed decision records with status display (`backlog://decisions/all`)
+- **Task dependency extraction**: Parses dependencies from task view output
+
+### Native CLI Pass-through
+All other features directly use the Backlog.md CLI commands:
+- Task creation, editing, viewing, archiving
+- Board operations and export
+- Configuration management
+- Draft task operations
+- Documentation management
+- Core sequence and dependency features
+
+## MCP Enhancement Matrix
+
+This table shows how each feature is implemented to help you understand performance and behavior:
+
+| Feature | Type | Implementation | Performance Notes |
+|---------|------|----------------|-------------------|
+| **label filtering (task_list)** | MCP Enhancement | Client-side: fetches all tasks, then individual task details | O(n) calls - expensive for large task lists |
+| **decision_list** | MCP Enhancement | Custom filesystem parsing with status extraction | Efficient - single directory read |
+| **backlog://tasks/by-priority** | MCP Enhancement | Multiple CLI calls with "No Priority" section | Multiple CLI calls, in-memory grouping |
+| **backlog://statistics** | MCP Enhancement | Combines CLI overview + custom analytics | Two CLI calls + processing |
+| **backlog://decisions/all** | MCP Enhancement | Direct filesystem parsing with status extraction | Efficient - single directory read |
+| **task_dependencies** | CLI + Processing | Parses dependencies from `task view` output | Single CLI call + regex parsing |
+| **task_create/edit/view/archive** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+| **board_show/export** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+| **config_get/set/list** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+| **draft operations** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+| **doc operations** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+| **decision_create** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+| **sequence_list** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+| **agents_update, cleanup, browser** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+
+### Developer Notes
+
+For contributor documentation, see `DEVELOPMENT.md` for:
+- Development workflow and environment setup
+- Testing procedures and guidelines
+- Code style and conventions
+- Release process
+
 ### 📚 Available Resources
 
 - `backlog://tasks/all` - View all tasks in markdown format
@@ -83,9 +133,9 @@ Before using the MCP server, ensure:
 
 ### Important Notes
 
-- **Status values**: Must match your Backlog.md configuration exactly (default: "To Do", "In Progress", "Done")
+- **Status values**: Must match your Backlog.md configuration exactly (check with `backlog config get statuses`)
 - **Non-interactive mode**: The MCP server automatically uses `--plain` flags to prevent interactive prompts
-- **Tags**: Use the `tags` parameter in MCP commands, which maps to `--labels` in the CLI
+- **Labels**: Use the `labels` parameter in MCP commands, which maps to `--labels` in the CLI
 
 ### Limitations
 
@@ -101,13 +151,13 @@ Before using the MCP server, ensure:
 - **task_create**: 
   - `title` (required): Task title as a string
   - `description` (optional): Task description
-  - `status` (optional): Must be exact: "To Do", "In Progress", or "Done"
+  - `status` (optional): Must match your Backlog.md configuration exactly (check with `backlog config get statuses`)
   - `priority` (optional): "low", "medium", or "high"
-  - `tags` (optional): Array of strings (mapped to `--labels` in CLI)
+  - `labels` (optional): Array of strings (mapped to `--labels` in CLI)
 
 - **task_list**:
   - `status` (optional): Filter by status or "all" for all tasks
-  - `tag` (optional): Filter by a specific tag
+  - `label` (optional): Filter by a specific label
   - `priority` (optional): Filter by priority level
 
 - **task_edit**:
@@ -327,7 +377,7 @@ claude mcp add backlog-md -- backlog-mcp start
 - Ensure you have a valid Backlog.md repository initialized (`backlog init`)
 - Check that you're in the correct project directory
 - Verify the Backlog.md CLI works: `backlog --help`
-- Ensure status values match exactly (case-sensitive): "To Do", "In Progress", "Done"
+- Ensure status values match your Backlog.md configuration exactly (check with `backlog config get statuses`)
 
 ### Commands Hanging or No Response
 - This typically means the CLI is waiting for interactive input

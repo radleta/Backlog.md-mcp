@@ -2,6 +2,17 @@
 
 This project provides an MCP (Model Context Protocol) server that enables AI assistants to interact with the Backlog.md task management system.
 
+## Documentation Audience
+
+This CLAUDE.md file is **internal development documentation** for contributors working on the MCP server. The documentation is organized by audience:
+
+- **CLAUDE.md** (this file) - Internal development documentation for contributors
+- **README.md** - For users installing and configuring the MCP server (includes limitations and enhancement matrix)  
+- **MCP Tool Interface** - What AI agents see through the protocol (clean tool descriptions only)
+- **DEVELOPMENT.md** - Detailed contributor guidelines and architecture documentation
+
+**Important**: The MCP agent only sees tool descriptions through the protocol interface and should not be exposed to implementation details or meta-commentary about enhancements vs CLI features.
+
 ## Project Overview
 
 The Backlog.md MCP Server wraps the Backlog.md CLI tool to provide structured access to task management features through the Model Context Protocol. This allows Claude Code to directly manage tasks, view boards, and handle sprints.
@@ -9,8 +20,8 @@ The Backlog.md MCP Server wraps the Backlog.md CLI tool to provide structured ac
 ## Available MCP Tools
 
 ### Task Management
-- `task_create` - Create new tasks with full support for title, description, status, priority, tags, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
-- `task_list` - List tasks with enhanced filtering by status, tag, priority, assignee, parent task ID, and sorting options (priority, id)
+- `task_create` - Create new tasks with full support for title, description, status, priority, labels, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
+- `task_list` - List tasks with enhanced filtering by status, label, priority, assignee, parent task ID, and sorting options (priority, id)
 - `task_edit` - Edit existing tasks with comprehensive support for all task properties, acceptance criteria management (add/remove/check/uncheck), label management, and custom ordering
 - `task_view` - View detailed task information
 - `task_archive` - Archive tasks
@@ -65,6 +76,32 @@ Example workflow:
 - Include acceptance criteria for each task
 - Use sequence_list to verify execution order
 
+## MCP Server Enhancements (Developer Notes)
+
+This MCP server provides enhanced functionality beyond the native Backlog.md CLI. These notes are for developers to understand implementation decisions:
+
+### Enhanced Features (MCP-only)
+- **Label filtering in task_list**: Filter tasks by label (client-side implementation - makes O(n) calls, expensive for large task lists)
+- **Resource aggregation**: Tasks grouped by priority, enhanced statistics (multiple CLI calls with in-memory processing)
+- **Decision list operations**: Custom decision_list tool and resources with status parsing (efficient - direct filesystem access)
+- **Task dependency extraction**: Parses dependencies from task view output (single CLI call + regex parsing)
+
+### Native CLI Pass-through
+All core task management operations use Backlog.md CLI directly for data integrity:
+- Task creation, editing, viewing, archiving
+- Board operations and export  
+- Configuration management
+- Draft task operations
+- Documentation management
+- Core sequence and dependency features
+
+### Implementation Guidelines
+- **Add MCP Enhancement when**: CLI doesn't support the feature, need to combine operations, or provide convenience/aggregation
+- **Use CLI Pass-through when**: CLI supports the operation, want data integrity for writes, or avoid artificial validation
+- **Performance Considerations**: Label filtering is expensive (O(n)), decision operations are efficient (single reads), avoid restricting CLI capabilities
+
+**Complete Enhancement Matrix**: See README.md for the full matrix showing implementation types and performance notes for users.
+
 ## Available Resources
 
 The server exposes these resources for reading:
@@ -101,6 +138,8 @@ claude mcp add backlog-md --scope project -- backlog-mcp start
 This project uses a dual-environment approach that allows you to develop the MCP server while maintaining a stable version for daily use.
 
 ### Development Workflow for Contributors
+
+**Note**: This section is for developers working on the MCP server codebase.
 
 **🧪 Quick Development Mode**
 ```bash

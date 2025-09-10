@@ -304,6 +304,31 @@ type(scope): description
 3. Create git tag: `v1.x.x`
 4. Build and publish: `cd package && npm publish`
 
+## Implementation Guidelines
+
+### Adding New Features
+
+**When to Add MCP Enhancement vs CLI Pass-through:**
+
+**Add MCP Enhancement when:**
+- CLI doesn't support the feature natively
+- Need to combine multiple CLI operations
+- Want to provide convenience/aggregation features
+- Need custom output formatting
+
+**Use CLI Pass-through when:**
+- CLI already supports the operation
+- No additional processing needed
+- Want to maintain data integrity for write operations
+
+**Performance Considerations:**
+- Label filtering makes N+1 CLI calls (expensive for large task lists)
+- Decision operations use direct filesystem access (efficient)
+- Priority grouping makes multiple CLI calls but caches results
+- Avoid artificial input validation that restricts CLI capabilities
+
+For the complete enhancement matrix showing which features are implemented how, see the README.md file.
+
 ## Architecture Details
 
 ### MCP Server Implementation
@@ -313,6 +338,11 @@ The server (`source/src/server.ts`) implements:
 - **Resource providers** for read-only data access
 - **Error handling** and validation
 - **Transport layer** (STDIO)
+
+#### Enhancement Functions
+- `groupTasksByPriority()` - Priority aggregation with "No Priority" section
+- `listDecisionFiles()` - Decision filesystem parsing with status extraction
+- Label filtering logic in `task_list` case (client-side implementation)
 
 ### CLI Wrapper
 
