@@ -1,5 +1,9 @@
 # Backlog.md MCP Server
 
+[![npm version](https://img.shields.io/npm/v/@radleta/backlog-md-mcp.svg)](https://www.npmjs.com/package/@radleta/backlog-md-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/@radleta/backlog-md-mcp.svg)](https://www.npmjs.com/package/@radleta/backlog-md-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.com/MrLesk/Backlog.md) task management system, enabling AI assistants like Claude to directly manage tasks and view Kanban boards.
 
 ## Features
@@ -179,7 +183,7 @@ Before using the MCP server, ensure:
 ### From npm
 
 ```bash
-npm install -g backlog-md-mcp
+npm install -g @radleta/backlog-md-mcp
 ```
 
 ### From Source
@@ -201,6 +205,31 @@ npm install -g backlog-md-mcp
    npm install -g .
    ```
 
+## Quick Start
+
+Get up and running with Backlog.md MCP Server in 3 steps:
+
+1. **Install the package**:
+   ```bash
+   npm install -g @radleta/backlog-md-mcp
+   ```
+
+2. **Add to Claude Code**:
+   ```bash
+   claude mcp add backlog-md -- backlog-mcp start
+   ```
+
+3. **Start using it with Claude**:
+   ```
+   "Create a high-priority task for implementing user authentication"
+   "Show me all tasks with status 'In Progress'"  
+   "Display the Kanban board"
+   ```
+
+**Prerequisites**: Ensure you have [Backlog.md CLI](https://github.com/MrLesk/Backlog.md) installed and your project initialized with `backlog init`.
+
+For detailed configuration options, see the [Configuration](#configuration) section below.
+
 ## Configuration
 
 ### Setup
@@ -217,7 +246,7 @@ claude mcp add backlog-md -- backlog-mcp start
 
 ```bash
 # Install the server globally first
-npm install -g backlog-md-mcp
+npm install -g @radleta/backlog-md-mcp
 
 # Add to Claude Code (user scope - available in all projects)
 claude mcp add backlog-md --scope user -- backlog-mcp start
