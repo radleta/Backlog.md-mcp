@@ -1021,19 +1021,10 @@ export async function startServer() {
 	// Don't check initialization here - let the server start
 	// Individual commands will handle initialization checks
 	
-	const args = process.argv.slice(2);
-	const isHttp = args.includes('--http');
-	
-	if (isHttp) {
-		// HTTP transport not implemented in this example
-		console.error('HTTP transport not yet implemented. Use STDIO transport.');
-		process.exit(1);
-	} else {
-		// STDIO transport
-		const transport = new StdioServerTransport();
-		await server.connect(transport);
-		// Server is now running and listening for MCP protocol messages
-	}
+	// STDIO transport
+	const transport = new StdioServerTransport();
+	await server.connect(transport);
+	// Server is now running and listening for MCP protocol messages
 }
 
 // Export server as default

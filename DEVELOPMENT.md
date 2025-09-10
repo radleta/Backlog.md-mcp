@@ -79,7 +79,6 @@ The project uses a **dual-environment approach** to separate development from pr
 # Make changes in source/src/
 # Test your changes
 ./dev.sh validate
-./dev.sh start --transport http --port 3001
 
 # Run full test suite
 ./test-mcp.sh
@@ -107,7 +106,7 @@ The project uses a **dual-environment approach** to separate development from pr
 #### Direct Path Execution
 ```bash
 node package/bin/backlog-mcp-dev validate
-node package/bin/backlog-mcp-dev start --transport http --port 3001
+node package/bin/backlog-mcp-dev start
 ```
 
 #### Production Installation (for stable use)
@@ -249,7 +248,7 @@ node -e "console.log('BACKLOG_ENV:', process.env.BACKLOG_ENV)"
 #### MCP Server Issues
 ```bash
 # Test server startup
-./dev.sh start --transport http --port 3001
+./dev.sh start
 
 # Check server logs (if available)
 tail -f ~/.config/backlog-mcp-dev/logs/server.log
@@ -257,12 +256,7 @@ tail -f ~/.config/backlog-mcp-dev/logs/server.log
 
 ### Debugging Tips
 
-1. **Use HTTP transport for debugging**:
-   ```bash
-   ./dev.sh start --transport http --port 3001 --verbose
-   ```
-
-2. **Enable verbose logging**:
+1. **Enable verbose logging**:
    ```bash
    DEBUG=* ./dev.sh start
    ```
@@ -318,7 +312,7 @@ The server (`source/src/server.ts`) implements:
 - **Tool handlers** for Backlog.md CLI commands
 - **Resource providers** for read-only data access
 - **Error handling** and validation
-- **Transport layer** (STDIO/HTTP)
+- **Transport layer** (STDIO)
 
 ### CLI Wrapper
 

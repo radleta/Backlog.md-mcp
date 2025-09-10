@@ -317,22 +317,6 @@ claude mcp remove backlog-md-dev
 claude mcp add backlog-md -- backlog-mcp start
 ```
 
-## Transport Modes
-
-The server supports two transport modes:
-
-### STDIO (Default)
-Used by MCP clients:
-```bash
-backlog-mcp start --transport stdio
-```
-
-### HTTP
-For development and testing:
-```bash
-backlog-mcp start --transport http --port 3000
-```
-
 ## Troubleshooting
 
 ### Server Not Connecting

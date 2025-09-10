@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release of Backlog.md MCP Server
 - Full integration with Claude Desktop via Model Context Protocol (MCP)
 - Interactive setup wizard for easy configuration
-- Support for both STDIO and HTTP transport protocols
+- Support for STDIO transport protocol
 - Comprehensive CLI with multiple commands:
   - `setup` - Interactive configuration wizard
   - `start` - Start the MCP server
@@ -59,7 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned Features
-- HTTP transport implementation
 - WebSocket support for real-time updates
 - Multi-workspace support
 - Enhanced error handling and recovery

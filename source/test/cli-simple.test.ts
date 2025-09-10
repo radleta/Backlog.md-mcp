@@ -87,8 +87,6 @@ describe('CLI Integration Tests', () => {
 			
 			child.on('exit', (code) => {
 				expect(code).toBe(0);
-				expect(output).toContain('--transport');
-				expect(output).toContain('--port');
 				expect(output).toContain('--verbose');
 				done();
 			});

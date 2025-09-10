@@ -35,23 +35,12 @@ program
 program
 	.command('start')
 	.description('Start the Backlog.md MCP server')
-	.option('-t, --transport <type>', 'Transport type (stdio or http)', 'stdio')
-	.option('-p, --port <port>', 'Port for HTTP transport', '3000')
 	.option('-v, --verbose', 'Enable verbose output')
 	.action(async (options) => {
 		// Import and start the server directly
 		const { startServer } = await import('./server.js');
 		
-		// Don't log to stdout when using STDIO transport as it interferes with MCP protocol
-		if (options.transport !== 'stdio') {
-			console.log('Starting Backlog.md MCP server...');
-		}
-		
 		// Pass arguments through process.argv for the server to parse
-		if (options.transport === 'http') {
-			process.argv.push('--http', '--port', options.port);
-		}
-		
 		if (options.verbose) {
 			process.argv.push('--verbose');
 		}

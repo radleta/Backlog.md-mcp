@@ -99,7 +99,7 @@ cd Backlog.md-mcp
 
 # Make changes in source/src/
 # Test changes
-./dev.sh start --transport http --port 3001
+./dev.sh start
 ```
 
 **🔄 Development vs Production**

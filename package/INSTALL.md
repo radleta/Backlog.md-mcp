@@ -100,19 +100,6 @@ Add the following to your `claude_desktop_config.json`:
 }
 ```
 
-For HTTP transport (alternative):
-
-```json
-{
-  "mcpServers": {
-    "backlog-md": {
-      "command": "backlog-mcp",
-      "args": ["start", "--transport", "http", "--port", "3000"]
-    }
-  }
-}
-```
-
 ## Usage Examples
 
 Once installed and configured, you can use natural language commands in Claude Desktop:
