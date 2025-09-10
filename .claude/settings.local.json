@@ -36,7 +36,8 @@
       "Bash(npm run size:check:*)",
       "Bash(npm test:*)",
       "Bash(npm audit:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npm run pack:dry:*)"
     ],
     "deny": [],
     "ask": []
