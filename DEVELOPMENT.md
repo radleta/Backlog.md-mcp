@@ -116,6 +116,16 @@ npm install -g .
 backlog-mcp validate
 ```
 
+### Development vs Production Environment
+
+| Aspect | Development | Production |
+|--------|------------|------------|
+| **Command** | `./dev.sh` or `node package/bin/backlog-mcp-dev` | `backlog-mcp` |
+| **Config Dir** | `~/.config/backlog-mcp-dev` | `~/.config/backlog-mcp` |
+| **Environment** | `BACKLOG_ENV=development` | `BACKLOG_ENV=production` |
+| **Installation** | Direct execution | Global npm package |
+| **Claude Code** | `node /path/to/package/bin/backlog-mcp-dev start` | `backlog-mcp start` |
+
 ## Testing
 
 ### Unit Tests

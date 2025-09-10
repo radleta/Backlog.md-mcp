@@ -113,13 +113,6 @@ This table shows how each feature is implemented to help you understand performa
 | **sequence_list** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
 | **agents_update, cleanup, browser** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
 
-### Developer Notes
-
-For contributor documentation, see `DEVELOPMENT.md` for:
-- Development workflow and environment setup
-- Testing procedures and guidelines
-- Code style and conventions
-- Release process
 
 ### 📚 Available Resources
 
@@ -268,114 +261,20 @@ Once configured, you can use natural language in Claude:
 - "Get the current project configuration"
 
 
-## Project Structure
 
-```
-Backlog.md-mcp/
-├── source/                 # Development source code
-│   ├── src/               # TypeScript source files
-│   │   ├── server.ts      # MCP server implementation
-│   │   ├── cli.ts         # CLI implementation
-│   │   ├── config.ts      # Configuration management
-│   │   └── setup.ts       # Interactive setup
-│   ├── test/              # Test files
-│   ├── package.json       # Development dependencies
-│   └── tsconfig.json      # TypeScript configuration
-├── package/               # Distribution package
-│   ├── dist/              # Compiled JavaScript
-│   ├── bin/               # Executable scripts
-│   ├── package.json       # Runtime dependencies
-│   └── README.md          # Package documentation
-├── Backlog.md/            # Git submodule (official Backlog.md)
-└── build.sh               # Build script
-```
+## Building from Source
 
-## Development
-
-### Prerequisites
-
-- Node.js 18+ or Bun runtime
-- TypeScript 5+
-- Git
-
-### Development Setup
-
-The project uses a dual-environment approach to allow development while maintaining a stable production version.
-
-#### Building from Source
+If you want to build and install from source:
 
 ```bash
 # Clone and build
 git clone --recursive https://github.com/radleta/Backlog.md-mcp.git
 cd Backlog.md-mcp
 ./build.sh
-```
 
-#### Development Workflow
-
-**🧪 Development Mode (Recommended)**
-```bash
-# Make changes in source/src/
-# Build and test with convenience script
-./dev.sh validate
-./dev.sh start
-
-# Or run full test suite
-./test-mcp.sh
-```
-
-**📦 Direct Path Execution**
-```bash
-# Build the project
-./build.sh
-
-# Run development version directly
-node package/bin/backlog-mcp-dev validate
-node package/bin/backlog-mcp-dev start
-```
-
-**🚀 Production Installation**
-```bash
-# Install stable version for daily use
+# Install globally
 cd package
 npm install -g .
-
-# Use normally
-backlog-mcp start
-claude mcp add backlog-md -- backlog-mcp start
-```
-
-### Development vs Production
-
-| Aspect | Development | Production |
-|--------|------------|------------|
-| **Command** | `./dev.sh` or `node package/bin/backlog-mcp-dev` | `backlog-mcp` |
-| **Config Dir** | `~/.config/backlog-mcp-dev` | `~/.config/backlog-mcp` |
-| **Environment** | `BACKLOG_ENV=development` | `BACKLOG_ENV=production` |
-| **Installation** | Direct execution | Global npm package |
-| **Claude Code** | `node /path/to/package/bin/backlog-mcp-dev start` | `backlog-mcp start` |
-
-### Running Tests
-
-```bash
-cd source
-npm test
-# or with Bun
-bun test
-
-# Full integration test
-./test-mcp.sh
-```
-
-### Claude Code Integration for Development
-
-```bash
-# Add development version
-claude mcp add backlog-md-dev -- node /home/ubuntu/Backlog.md-mcp/package/bin/backlog-mcp-dev start
-
-# Switch back to production (if installed)
-claude mcp remove backlog-md-dev
-claude mcp add backlog-md -- backlog-mcp start
 ```
 
 ## Troubleshooting
@@ -401,13 +300,7 @@ claude mcp add backlog-md -- backlog-mcp start
 
 ## Contributing
 
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new features
-4. Ensure all tests pass
-5. Submit a pull request
+Contributions are welcome! For detailed development setup, testing procedures, and contribution guidelines, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## License
 
