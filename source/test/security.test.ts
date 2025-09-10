@@ -1,6 +1,23 @@
 import { describe, test, expect, beforeEach, mock } from 'bun:test';
 import { securityPayloads } from './utils/fixtures';
 import { spawn } from 'child_process';
+import {
+  sanitizeTaskId,
+  validateArguments,
+  escapeShellArg,
+  sanitizePath,
+  isPathAllowed,
+  validateTaskTitle,
+  isValidConfigKey,
+  sanitizeHTML,
+  RateLimiter,
+  truncateOutput,
+  Semaphore,
+  checkWritePermission,
+  isCommandAllowed,
+  sanitizeForLogging,
+  maskSensitiveOutput
+} from '../src/security';
 
 describe('Security Tests', () => {
 	describe('Command Injection Prevention', () => {
@@ -256,125 +273,3 @@ describe('Security Tests', () => {
 	});
 });
 
-// Helper functions (these would be in the actual implementation)
-function sanitizeTaskId(id: string): string {
-	return id.replace(/[;|&`$()\\]/g, '');
-}
-
-function validateArguments(args: string[]): boolean {
-	return args.every(arg => !arg.match(/[;|&`$()\\]/));
-}
-
-function escapeShellArg(arg: string): string {
-	if (arg.match(/[;|&`$()\\]/)) {
-		return `'${arg.replace(/'/g, "\\'")}'`;
-	}
-	return arg;
-}
-
-function sanitizePath(path: string): string {
-	return path.replace(/\.\./g, '').replace(/^(\/etc|\\\\|file:)/i, '');
-}
-
-function isPathAllowed(path: string, allowedDirs: string[]): boolean {
-	const normalized = path.replace(/\\/g, '/');
-	return allowedDirs.some(dir => normalized.startsWith(dir));
-}
-
-function validateTaskTitle(title: string): boolean {
-	if (!title || title.length > 200) return false;
-	if (title.match(/<script|javascript:|onerror|onload/i)) return false;
-	return true;
-}
-
-function isValidConfigKey(key: string): boolean {
-	const validKeys = ['backlogCliPath', 'transport', 'port', 'autoStart'];
-	const blacklist = ['__proto__', 'constructor', 'prototype'];
-	return validKeys.includes(key) && !blacklist.includes(key);
-}
-
-function sanitizeHTML(html: string): string {
-	return html
-		.replace(/<script[^>]*>.*?<\/script>/gi, '')
-		.replace(/javascript:/gi, '')
-		.replace(/on\w+=/gi, '');
-}
-
-class RateLimiter {
-	private requests: number[] = [];
-	
-	constructor(private limit: number, private window: number) {}
-	
-	allow(): boolean {
-		const now = Date.now();
-		this.requests = this.requests.filter(t => t > now - this.window);
-		
-		if (this.requests.length < this.limit) {
-			this.requests.push(now);
-			return true;
-		}
-		return false;
-	}
-}
-
-function truncateOutput(output: string, maxSize: number): string {
-	if (output.length <= maxSize) return output;
-	return output.slice(0, maxSize - 20) + '\n[Output truncated]';
-}
-
-class Semaphore {
-	private current = 0;
-	private waiting: (() => void)[] = [];
-	
-	constructor(private max: number) {}
-	
-	async acquire(): Promise<void> {
-		if (this.current < this.max) {
-			this.current++;
-			return;
-		}
-		
-		return new Promise(resolve => {
-			this.waiting.push(resolve);
-		});
-	}
-	
-	release(): void {
-		this.current--;
-		const next = this.waiting.shift();
-		if (next) {
-			this.current++;
-			next();
-		}
-	}
-}
-
-function checkWritePermission(path: string): boolean {
-	// Simplified check - in reality would use fs.access
-	return !path.match(/^(\/etc|\/root|\/sys|\/proc)/);
-}
-
-function isCommandAllowed(cmd: string): boolean {
-	const forbidden = ['sudo', 'su', 'chmod', 'chown', 'rm -rf'];
-	return !forbidden.some(f => cmd.includes(f));
-}
-
-function sanitizeForLogging(data: any): any {
-	const sensitiveKeys = ['apiKey', 'password', 'token', 'secret', 'key'];
-	const result = { ...data };
-	
-	for (const key of Object.keys(result)) {
-		if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk))) {
-			result[key] = '[REDACTED]';
-		}
-	}
-	
-	return result;
-}
-
-function maskSensitiveOutput(output: string): string {
-	return output
-		.replace(/API_KEY=[\w-]+/g, 'API_KEY=[REDACTED]')
-		.replace(/DATABASE_URL=[\w:/@.-]+/g, 'DATABASE_URL=[REDACTED]')
-		.replace(/\b(sk-|ghp_|ghs_|pat_)[\w-]{20,}/g, '[REDACTED]');
-}

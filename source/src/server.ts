@@ -11,6 +11,7 @@ import { spawn } from "child_process";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { getBacklogCliPath, isBacklogInitialized } from "./config.js";
+import { escapeShellArg, validateArguments, sanitizePath, isPathAllowed, isValidConfigKey } from "./security.js";
 
 // Initialize MCP server
 export const server = new Server(
@@ -82,7 +83,16 @@ async function groupTasksByPriority(): Promise<string> {
 // Helper to list decision files directly from filesystem (read-only)
 async function listDecisionFiles(projectDir: string): Promise<string> {
   try {
-    const decisionsDir = join(projectDir, "backlog", "decisions");
+    // Sanitize the project directory path
+    const sanitizedProjectDir = sanitizePath(projectDir);
+    
+    // Ensure the path is allowed (within reasonable bounds)
+    const allowedDirs = [process.cwd(), process.env.PWD || process.cwd()];
+    if (!isPathAllowed(sanitizedProjectDir, allowedDirs)) {
+      throw new Error('Access to specified directory is not allowed');
+    }
+
+    const decisionsDir = join(sanitizedProjectDir, "backlog", "decisions");
     const files = await readdir(decisionsDir);
 
     // Filter for decision files (skip readme.md)
@@ -146,11 +156,19 @@ async function runBacklogCommand(args: string[]): Promise<string> {
     );
   }
 
+  // Validate arguments for security
+  if (!validateArguments(args)) {
+    throw new Error('Invalid command arguments detected');
+  }
+
+  // Escape arguments to prevent shell injection
+  const escapedArgs = args.map(arg => escapeShellArg(arg));
+
   try {
     const backlogPath = await getBacklogCliPath();
 
     return new Promise((resolve, reject) => {
-      const child = spawn(backlogPath, args, {
+      const child = spawn(backlogPath, escapedArgs, {
         shell: false, // Don't use shell to avoid argument parsing issues
         cwd: projectDir, // Run command in project directory
         env: { ...process.env },
@@ -1024,11 +1042,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
       }
 
       case "config_get": {
+        // Validate configuration key for security
+        if (!isValidConfigKey(args.key)) {
+          throw new Error(`Invalid configuration key: ${args.key}`);
+        }
         const result = await runBacklogCommand(["config", "get", args.key]);
         return { content: [{ type: "text", text: result }] };
       }
 
       case "config_set": {
+        // Validate configuration key for security
+        if (!isValidConfigKey(args.key)) {
+          throw new Error(`Invalid configuration key: ${args.key}`);
+        }
         const result = await runBacklogCommand([
           "config",
           "set",

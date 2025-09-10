@@ -137,6 +137,23 @@ cd source
 npm run lint                        # ESLint
 npm run lint:fix                    # Auto-fix issues
 npm run typecheck                   # TypeScript check
+```
+
+### Security Testing
+
+Run security-specific tests:
+```bash
+npm test test/security.test.ts
+```
+
+Security tests cover:
+- Command injection prevention
+- Path traversal protection
+- Input validation
+- Configuration security
+- Rate limiting (for future use)
+- Permission checks
+- Secrets protection
 npm run format                      # Prettier formatting
 ```
 
@@ -178,6 +195,23 @@ claude mcp add backlog-md -- backlog-mcp start
 - **Type safety** - avoid `any` types
 - **JSDoc comments** for public APIs
 - **Consistent naming**: camelCase for variables, PascalCase for types
+
+### Security Considerations
+
+When developing new features:
+1. **Validate all user inputs** using functions from `src/security.ts`
+2. **Escape shell arguments** using `escapeShellArg()` for any command execution
+3. **Validate file paths** using `sanitizePath()` and `isPathAllowed()` for filesystem operations
+4. **Check configuration keys** using `isValidConfigKey()` to prevent prototype pollution
+5. **Follow pass-through philosophy** - escape dangerous characters, don't remove them
+6. **Add security tests** for any new user-facing functionality
+
+Security functions available:
+- `escapeShellArg(arg)` - Escapes shell metacharacters
+- `validateArguments(args)` - Validates command arguments
+- `sanitizePath(path)` - Prevents directory traversal
+- `isPathAllowed(path, dirs)` - Restricts file access
+- `isValidConfigKey(key)` - Prevents prototype pollution
 
 ### File Organization
 ```typescript

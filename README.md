@@ -60,6 +60,17 @@ The Backlog.md MCP Server is designed as a complete wrapper around the Backlog.m
 
 This approach ensures the MCP server remains a reliable, maintainable wrapper that respects Backlog.md's architecture while providing useful programmatic access for AI assistants.
 
+## Security
+
+The Backlog.md MCP Server implements comprehensive security measures to protect against common vulnerabilities:
+
+- **Command Injection Prevention**: All user inputs are validated and shell arguments are properly escaped
+- **Path Traversal Protection**: File system operations are restricted to project directories
+- **Configuration Security**: Protected against prototype pollution attacks
+- **Pass-through Philosophy**: Security measures escape dangerous characters rather than removing them, preserving user intent
+
+All security implementations are thoroughly tested with 16 dedicated security tests covering various attack vectors.
+
 ## MCP Server Enhancements
 
 This MCP server provides additional functionality beyond the native Backlog.md CLI:

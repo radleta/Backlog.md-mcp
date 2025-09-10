@@ -215,11 +215,22 @@ backlog-mcp validate
 claude mcp add backlog-md -- backlog-mcp start
 ```
 
+### Security
+
+The MCP server implements comprehensive security measures including:
+- Command injection prevention through argument validation and escaping
+- Path traversal protection for filesystem operations
+- Configuration key validation to prevent prototype pollution
+- All security measures preserve user content (escape, don't remove)
+
+See `source/src/security.ts` for the complete security implementation.
+
 ### Project Structure
 
 - `source/` - TypeScript source code
   - `src/server.ts` - MCP server implementation
   - `src/cli.ts` - CLI commands
+  - `src/security.ts` - Security functions and validation
   - `src/config.ts` - Configuration management
   - `src/setup.ts` - Setup wizard
 - `package/` - Distribution package
