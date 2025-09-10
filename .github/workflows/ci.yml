@@ -66,7 +66,6 @@ jobs:
           test -f package/dist/cli.js
           test -f package/dist/server.js
           test -f package/dist/config.js
-          test -f package/dist/setup.js
         shell: bash
 
   build-full:
