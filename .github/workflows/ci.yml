@@ -140,6 +140,11 @@ jobs:
           npm ci
           npm run build
       
+      - name: Install package dependencies
+        run: |
+          cd package
+          npm ci --production
+      
       - name: Validate package.json
         run: |
           cd package
