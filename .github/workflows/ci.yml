@@ -41,6 +41,11 @@ jobs:
           cd source
           npm run build
       
+      - name: Install package dependencies
+        run: |
+          cd package
+          npm ci --production
+      
       - name: Run tests
         run: |
           cd source
