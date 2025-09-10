@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Source maps
+*.map
+
+# Test files
+*.test.*
+*.spec.*
+
+# Environment files
+.env*
+
+# Alternative package managers
+bun.lock
+
+# Development scripts
+scripts/
+
+# IDE-specific files
+.claude/
+
+# Build artifacts
+.tsbuildinfo
+
+# Coverage reports
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
