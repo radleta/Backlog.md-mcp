@@ -30,7 +30,8 @@
       "Bash(./bin/backlog-mcp:*)",
       "Bash(bun test:*)",
       "Bash(./dev.sh:*)",
-      "Bash(./test-mcp.sh:*)"
+      "Bash(./test-mcp.sh:*)",
+      "Bash(npm ci:*)"
     ],
     "deny": [],
     "ask": []
