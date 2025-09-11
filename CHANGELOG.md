@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Array Parameter Validation**: Fixed misleading "Invalid command arguments detected" error when using array parameters with text containing parentheses
+  - Replaced overly restrictive validation with context-aware checking
+  - Allow parentheses in text fields (notes, descriptions, titles, acceptance criteria) 
+  - Maintain security by blocking dangerous shell metacharacters (`;`, `|`, `&`, `` ` ``, `$`, `\`)
+  - Add specific error messages for different validation failures instead of generic error
+  - Validate numeric fields properly (check-ac, uncheck-ac, remove-ac must contain only digits)
+  - Fixes issue where `checkAc: [1, 2, 3, 4]` with `notes: "text (with parentheses)"` would incorrectly fail validation
+
 ## [0.1.7] - 2025-09-11
 
 ### Fixed

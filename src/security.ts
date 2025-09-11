@@ -16,9 +16,111 @@ export function sanitizeTaskId(id: string): string {
  * Validates command line arguments for dangerous patterns
  * @param args Array of command arguments to validate
  * @returns true if arguments are safe, false otherwise
+ * @deprecated Use validateArgumentsEnhanced for better error reporting
  */
 export function validateArguments(args: string[]): boolean {
   return args.every(arg => !arg.match(/[;|&`$()\\]/));
+}
+
+/**
+ * Enhanced validation with context-aware checking and detailed error reporting
+ * @param args Array of command arguments to validate
+ * @returns Validation result with detailed error information
+ */
+export function validateArgumentsEnhanced(args: string[]): { valid: boolean, reason?: string } {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (!arg) continue; // Skip undefined/null arguments
+    
+    const prevArg = i > 0 ? args[i - 1] || '' : '';
+    
+    // Identify the type of argument
+    if (prevArg && prevArg.startsWith('--')) {
+      // This is a value for a parameter
+      switch (prevArg) {
+        case '--notes':
+        case '--description':
+        case '--title':
+        case '--plan':
+        case '--ac':
+          // Text fields: allow parentheses, block dangerous shell chars
+          if (arg.match(/[;|&`$\\]/)) {
+            return { 
+              valid: false, 
+              reason: `Text field '${prevArg}' contains dangerous shell characters: ${arg}` 
+            };
+          }
+          break;
+        
+        case '--check-ac':
+        case '--uncheck-ac':
+        case '--remove-ac':
+        case '--ordinal':
+          // Numeric fields: should only contain digits
+          if (!arg.match(/^\d+$/)) {
+            return { 
+              valid: false, 
+              reason: `Numeric field '${prevArg}' contains non-numeric value: ${arg}` 
+            };
+          }
+          break;
+          
+        case '--status':
+        case '--priority':
+        case '--assignee':
+        case '--add-label':
+        case '--remove-label':
+        case '--labels':
+        case '--dep':
+        case '--parent':
+          // Controlled fields: block all special chars except hyphens/underscores
+          if (arg.match(/[;|&`$()\\]/)) {
+            return { 
+              valid: false, 
+              reason: `Field '${prevArg}' contains dangerous characters: ${arg}` 
+            };
+          }
+          break;
+          
+        default:
+          // Unknown field: be conservative but allow common safe characters
+          if (arg.match(/[;|&`$\\]/)) {
+            return { 
+              valid: false, 
+              reason: `Field '${prevArg}' contains potentially dangerous characters: ${arg}` 
+            };
+          }
+      }
+    } else if (arg.startsWith('--')) {
+      // This is a flag, should be safe
+      if (arg.match(/[;|&`$()\\]/)) {
+        return { 
+          valid: false, 
+          reason: `Flag contains dangerous characters: ${arg}` 
+        };
+      }
+    } else {
+      // This could be a command, task ID, or value
+      // Be conservative but allow task IDs with standard format
+      if (arg.match(/^task-\d+(\.\d+)*$/)) {
+        // Valid task ID format
+        continue;
+      } else if (['task', 'edit', 'create', 'view', 'archive', 'list', 'draft', 'promote', 'demote', 'board', 'config', 'get', 'set', 'doc', 'decision', 'overview', 'cleanup', 'sequence', 'browser', 'agents', 'update', '--plain'].includes(arg)) {
+        // Known safe commands and flags
+        continue;
+      } else {
+        // Other values - block dangerous chars but allow parentheses in reasonable cases
+        if (arg.match(/[;|&`$\\]/)) {
+          return { 
+            valid: false, 
+            reason: `Argument contains dangerous shell characters: ${arg}` 
+          };
+        }
+      }
+    }
+  }
+  
+  return { valid: true };
 }
 
 /**

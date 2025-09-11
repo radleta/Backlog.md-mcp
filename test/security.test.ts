@@ -4,6 +4,7 @@ import { spawn } from 'child_process';
 import {
   sanitizeTaskId,
   validateArguments,
+  validateArgumentsEnhanced,
   escapeShellArg,
   sanitizePath,
   isPathAllowed,
@@ -66,6 +67,40 @@ describe('Security Tests', () => {
 				if (input.match(/[;|&`$()\\]/)) {
 					expect(escaped).toMatch(/^'.*'$|^".*"$/);
 				}
+			});
+		});
+		
+		test('should use enhanced validation for better error reporting', () => {
+			// Test cases that should pass with enhanced validation
+			const validCases = [
+				// checkAc with notes containing parentheses (the original bug case)
+				["task", "edit", "task-0002", "--plain", "--check-ac", "1", "--notes", "some notes (with parentheses)"],
+				// Multiple checkAc parameters
+				["task", "edit", "task-0002", "--plain", "--check-ac", "1", "--check-ac", "2", "--check-ac", "3"],
+				// Text fields with safe special characters
+				["task", "create", "Test Task", "--description", "A task with (important) details"],
+			];
+			
+			validCases.forEach((args, index) => {
+				const result = validateArgumentsEnhanced(args);
+				console.log(`Valid case ${index + 1}:`, args);
+				console.log(`Result:`, result);
+				expect(result.valid).toBe(true);
+			});
+			
+			// Test cases that should still fail
+			const invalidCases = [
+				["task", "edit", "task-0002", "--notes", "dangerous; rm -rf /"],
+				["task", "edit", "task-0002", "--check-ac", "not-a-number"],
+				["task", "edit", "task-0002", "--status", "done | cat /etc/passwd"],
+			];
+			
+			invalidCases.forEach((args, index) => {
+				const result = validateArgumentsEnhanced(args);
+				console.log(`Invalid case ${index + 1}:`, args);
+				console.log(`Result:`, result);
+				expect(result.valid).toBe(false);
+				expect(result.reason).toBeDefined();
 			});
 		});
 	});

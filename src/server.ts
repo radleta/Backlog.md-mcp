@@ -11,7 +11,7 @@ import { spawn } from "child_process";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { getBacklogCliPath, isBacklogInitialized } from "./config.js";
-import { escapeShellArg, validateArguments, sanitizePath, isPathAllowed } from "./security.js";
+import { escapeShellArg, validateArgumentsEnhanced, sanitizePath, isPathAllowed } from "./security.js";
 
 // Initialize MCP server
 export const server = new Server(
@@ -156,9 +156,10 @@ async function runBacklogCommand(args: string[]): Promise<string> {
     );
   }
 
-  // Validate arguments for security
-  if (!validateArguments(args)) {
-    throw new Error('Invalid command arguments detected');
+  // Validate arguments for security using enhanced validation
+  const validation = validateArgumentsEnhanced(args);
+  if (!validation.valid) {
+    throw new Error(validation.reason || 'Invalid command arguments detected');
   }
 
   try {
