@@ -53,13 +53,13 @@ describe('Consolidated Project Tests', () => {
 	
 	describe('Package Documentation Structure', () => {
 		test('user README should exist in root', async () => {
-			const readmePath = path.join(__dirname, '..', 'README');
+			const readmePath = path.join(__dirname, '..', 'README.md');
 			const result = await fs.access(readmePath).then(() => true).catch(() => false);
 			expect(result).toBe(true);
 		});
 		
 		test('developer README.md should exist', async () => {
-			const readmePath = path.join(__dirname, '..', 'README.md');
+			const readmePath = path.join(__dirname, '..', '.github', 'README.md');
 			const result = await fs.access(readmePath).then(() => true).catch(() => false);
 			expect(result).toBe(true);
 		});

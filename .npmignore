@@ -7,8 +7,7 @@ tsconfig.json
 .eslintrc*
 .prettierrc*
 
-# Documentation (exclude root developer README)
-README.md
+# Documentation (exclude development docs)
 CLAUDE.md
 docs/
 backlog/

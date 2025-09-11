@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **README Structure**: Reorganized README files for proper audience targeting
+  - Moved developer documentation from README.md to .github/README.md (for GitHub repository display)
+  - Renamed user documentation from README to README.md (for npm package display)
+  - Updated package.json files field to include correct README.md
+  - npm package now shows user-focused documentation instead of developer documentation
 - **Configuration Commands**: Fixed `config_get` and `config_set` MCP tools to properly pass through to Backlog.md CLI
   - Removed restrictive validation that only allowed MCP server-specific keys
   - Commands now work with all Backlog.md configuration keys (projectName, defaultStatus, statuses, etc.)

@@ -38,7 +38,7 @@
 	"files": [
 		"dist/",
 		"bin/",
-		"README",
+		"README.md",
 		"CHANGELOG.md",
 		"LICENSE"
 	],

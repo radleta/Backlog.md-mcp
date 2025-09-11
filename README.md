@@ -2,60 +2,19 @@
 
 An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.com/MrLesk/Backlog.md) task management system, enabling AI assistants like Claude to directly manage tasks and view Kanban boards.
 
-> **📦 For Users**: Install from npm: `npm install -g @radleta/backlog-md-mcp`  
-> See [npm package](https://www.npmjs.com/package/@radleta/backlog-md-mcp) for usage instructions.
-
-This guide provides detailed instructions for contributing to and developing the Backlog.md MCP Server.
-
 ## Table of Contents
 
-- [Architecture Overview](#architecture-overview)
-- [Development Setup](#development-setup)
-- [Development Workflow](#development-workflow)
-- [Testing](#testing)
-- [Code Style & Conventions](#code-style--conventions)
-- [Environment Management](#environment-management)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
-
-## Architecture Overview
-
-The Backlog.md MCP Server is designed as a complete wrapper around the [Backlog.md CLI](https://github.com/MrLesk/Backlog.md), following these principles:
-
-### Design Philosophy
-
-- **Complete CLI Coverage**: Exposes all available Backlog.md CLI commands through MCP
-- **Read-Only Enhancements**: Provides additional helpers that don't modify data
-- **Write Operation Integrity**: All modifications go through official CLI commands
-- **No Custom Write Logic**: Avoids breaking Backlog.md's internal implementation
-- **Non-Interactive Operations**: Commands requiring user input cannot be implemented
-
-### Project Structure
-
-```
-Backlog.md-mcp/
-├── src/                    # TypeScript source files
-│   ├── server.ts          # MCP server implementation
-│   ├── cli.ts             # CLI implementation
-│   ├── config.ts          # Configuration management
-│   └── setup.ts           # Interactive setup wizard
-├── test/                   # Test files
-├── dist/                   # Compiled JavaScript
-├── bin/                    # Executable scripts
-│   ├── backlog-mcp.js     # Production wrapper
-│   └── backlog-mcp-dev.js # Development wrapper
-├── scripts/                # Build utilities
-├── npm/                    # NPM package-specific files
-│   └── README.md          # User documentation
-├── Backlog.md/            # Git submodule (official Backlog.md)
-├── package.json           # Unified configuration
-├── tsconfig.json          # TypeScript configuration
-├── README.md              # Developer documentation
-├── CLAUDE.md              # Claude-specific instructions
-├── build.sh               # Build script
-├── dev.sh                 # Development convenience script
-└── test-mcp.sh            # Integration test script
-```
+- [License](#license)
+- [Related Projects](#related-projects)
+- [Support](#support)
 
 ## Features
 
@@ -103,279 +62,164 @@ Backlog.md-mcp/
   - `browser` - Launch web interface with optional port and browser settings
   - `agents_update` - Update agent instruction files (.cursorrules, CLAUDE.md, AGENTS.md, etc.)
 
-### 📚 Available Resources
+## Design Philosophy
 
-- `backlog://tasks/all` - View all tasks in markdown format
-- `backlog://board` - Current Kanban board view
-- `backlog://config` - Configuration settings
-- `backlog://drafts/all` - View all draft tasks in markdown format
-- `backlog://docs/all` - View all documentation files
-- `backlog://overview` - Project statistics and overview
-- `backlog://sequences` - Execution sequences computed from task dependencies
-- `backlog://decisions/all` - View all decision records
-- `backlog://tasks/by-priority` - Tasks grouped by priority levels
-- `backlog://statistics` - Enhanced project statistics and metrics
+The Backlog.md MCP Server is a reliable wrapper around the Backlog.md CLI that exposes all available commands through the MCP interface while adding useful enhancements for AI assistants.
 
 ## Security
 
-The Backlog.md MCP Server implements comprehensive security measures to protect against common vulnerabilities:
+The MCP server implements comprehensive security measures including input validation, command injection prevention, and path traversal protection to keep your projects safe.
 
-- **Command Injection Prevention**: All user inputs are validated and shell arguments are properly escaped
-- **Path Traversal Protection**: File system operations are restricted to project directories
-- **Configuration Security**: Protected against prototype pollution attacks
-- **Pass-through Philosophy**: Security measures escape dangerous characters rather than removing them, preserving user intent
+## Key Features
 
-All security implementations are thoroughly tested with 16 dedicated security tests covering various attack vectors.
+Beyond the standard Backlog.md functionality, this MCP server adds:
 
-## MCP Server Enhancements
+- **Enhanced Filtering**: Filter tasks by labels, priority, and status
+- **Task Grouping**: View tasks organized by priority levels
+- **Rich Resources**: Access tasks, boards, and statistics via `backlog://` URLs
+- **Decision Records**: Create and list architectural decision records
+- **Full CLI Access**: All native Backlog.md commands available through natural language
 
-This MCP server provides additional functionality beyond the native Backlog.md CLI:
+### 📚 Available Resources
 
-### Enhanced Features (MCP-only)
-- **Label filtering in task_list**: Filter tasks by label (implemented client-side as the CLI doesn't support this natively)
-- **Resource aggregation**: View tasks grouped by priority (`backlog://tasks/by-priority`)
-- **Enhanced statistics**: Additional metrics beyond native overview (`backlog://statistics`)
-- **Decision list tool**: Custom `decision_list` with status parsing (CLI only has `decision create`)
-- **Decision resources**: Parsed decision records with status display (`backlog://decisions/all`)
-- **Task dependency extraction**: Parses dependencies from task view output
+Access project data through `backlog://` URLs:
 
-### Native CLI Pass-through
-All other features directly use the Backlog.md CLI commands:
-- Task creation, editing, viewing, archiving
-- Board operations and export
-- Configuration management
-- Draft task operations
-- Documentation management
-- Core sequence and dependency features
+- `backlog://tasks/all` - View all tasks in markdown format
+- `backlog://tasks/by-priority` - Tasks grouped by priority levels
+- `backlog://board` - Current Kanban board view
+- `backlog://drafts/all` - View all draft tasks in markdown format
+- `backlog://docs/all` - View all documentation files
+- `backlog://decisions/all` - View all decision records
+- `backlog://sequences` - Execution sequences computed from task dependencies
+- `backlog://overview` - Project statistics and overview
+- `backlog://statistics` - Enhanced project statistics and metrics
+- `backlog://config` - Configuration settings
 
-## MCP Enhancement Matrix
+## Prerequisites
 
-This table shows how each feature is implemented to help you understand performance and behavior:
+Before using the MCP server, ensure:
 
-| Feature | Type | Implementation | Performance Notes |
-|---------|------|----------------|-------------------|
-| **label filtering (task_list)** | MCP Enhancement | Client-side: fetches all tasks, then individual task details | O(n) calls - expensive for large task lists |
-| **decision_list** | MCP Enhancement | Custom filesystem parsing with status extraction | Efficient - single directory read |
-| **backlog://tasks/by-priority** | MCP Enhancement | Multiple CLI calls with "No Priority" section | Multiple CLI calls, in-memory grouping |
-| **backlog://statistics** | MCP Enhancement | Combines CLI overview + custom analytics | Two CLI calls + processing |
-| **backlog://decisions/all** | MCP Enhancement | Direct filesystem parsing with status extraction | Efficient - single directory read |
-| **task_dependencies** | CLI + Processing | Parses dependencies from `task view` output | Single CLI call + regex parsing |
-| **task_create/edit/view/archive** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
-| **board_show/export** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
-| **config_get/set/list** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
-| **draft operations** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
-| **doc operations** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
-| **decision_create** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
-| **sequence_list** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
-| **agents_update, cleanup, browser** | Pure CLI Pass-through | Direct CLI command mapping | Native CLI performance |
+1. **Node.js 18+**: Required for running the MCP server
+2. **Backlog.md is installed**: The MCP server requires the [Backlog.md CLI](https://github.com/MrLesk/Backlog.md) to be available
+3. **Project initialization**: Your project must have Backlog.md initialized (`backlog init`)
+4. **Working directory**: The MCP server runs commands in the directory where Claude is working
 
-## Development Setup
+### Important Notes
 
-### Prerequisites
+- **Status values**: Must match your Backlog.md configuration exactly (check with `backlog config get statuses`)
+- **Non-interactive mode**: The MCP server automatically uses `--plain` flags to prevent interactive prompts
+- **Labels**: Use the `labels` parameter in MCP commands, which maps to `--labels` in the CLI
 
-- **Node.js 18+** or **Bun runtime**
-- **TypeScript 5+**
-- **Git**
-- **Initialized Backlog.md project** in your working directory
+### Limitations
 
-### Installation
+- **Initialization**: The `backlog init` command cannot be implemented through MCP as it requires interactive user input. Projects must be initialized manually before using the MCP server.
+- **Interactive Commands**: Any Backlog.md commands that require user interaction are not available through the MCP interface.
+
+### Key Tool Parameters
+
+Common parameters across tools:
+
+- **taskId**: Task identifier format (e.g., "task-123", "task-001.01" for sub-tasks)
+- **status**: Must match your Backlog.md configuration exactly (check with `backlog config get statuses`)
+- **priority**: "low", "medium", or "high"
+- **labels**: Array of strings for task categorization
+- **dependencies**: Comma-separated task IDs (e.g., "task-001,task-002")
+- **parent**: Parent task ID for creating sub-tasks
+- **ac**: Acceptance criteria as array of strings
+
+### Essential Tools Reference
+
+- **task_create**: Create tasks with full support for title, description, status, priority, labels, assignee, plan, notes, acceptance criteria, dependencies, and parent tasks
+- **task_list**: List and filter tasks by status, label, priority, assignee, or parent task
+- **task_edit**: Comprehensive editing including acceptance criteria management (add/remove/check/uncheck)
+- **draft_create/promote**: Create and promote draft tasks to full tasks
+- **board_show/export**: Display and export Kanban boards
+- **config_get/set**: Manage configuration settings
+
+> For complete tool documentation with all parameters, see the [GitHub repository](https://github.com/radleta/Backlog.md-mcp).
+
+## Installation
+
+### From npm
 
 ```bash
-# Clone with submodules
-git clone --recursive https://github.com/radleta/Backlog.md-mcp.git
-cd Backlog.md-mcp
-
-# Initial build
-./build.sh
+npm install -g @radleta/backlog-md-mcp
 ```
 
-## Development Workflow
 
-The project uses a **dual-environment approach** to separate development from production usage.
+## Quick Start
 
-### Quick Start
+Get up and running with Backlog.md MCP Server in 3 steps:
+
+1. **Install the package**:
+   ```bash
+   npm install -g @radleta/backlog-md-mcp
+   ```
+
+2. **Add to Claude Code**:
+   ```bash
+   claude mcp add backlog-md -- backlog-mcp start
+   ```
+
+3. **Start using it with Claude**:
+   ```
+   "Create a high-priority task for implementing user authentication"
+   "Show me all tasks with status 'In Progress'"  
+   "Display the Kanban board"
+   ```
+
+**Prerequisites**: Ensure you have [Backlog.md CLI](https://github.com/MrLesk/Backlog.md) installed and your project initialized with `backlog init`.
+
+For detailed configuration options, see the [Configuration](#configuration) section below.
+
+## Configuration
+
+### Setup Options
 
 ```bash
-# Make changes in src/
-# Test your changes
-./dev.sh validate
+# Add to Claude Code (user scope - available in all projects)
+claude mcp add backlog-md --scope user -- backlog-mcp start
 
-# Run full test suite
-./test-mcp.sh
+# Or add for current project only
+claude mcp add backlog-md --scope project -- backlog-mcp start
 ```
 
-### Environment Separation
+## Usage
 
-| Aspect | Development | Production |
-|--------|-------------|------------|
-| **Command** | `./dev.sh` or `node bin/backlog-mcp-dev.js` | `backlog-mcp` |
-| **Config Directory** | `~/.config/backlog-mcp-dev` | `~/.config/backlog-mcp` |
-| **Environment Variable** | `BACKLOG_ENV=development` | `BACKLOG_ENV=production` |
-| **Installation Method** | Direct execution | Global npm package |
+### CLI Commands
 
-### Development Commands
-
-#### Build and Test
 ```bash
-./build.sh                          # Build TypeScript to JavaScript
-./dev.sh validate                   # Test development version
-./dev.sh start                      # Start development server
-./test-mcp.sh                       # Full integration test
-```
+# Start the MCP server
+backlog-mcp start
 
-#### Direct Path Execution
-```bash
-node bin/backlog-mcp-dev.js validate
-node bin/backlog-mcp-dev.js start
-```
+# Interactive setup
+backlog-mcp setup
 
-#### Production Installation (for stable use)
-```bash
-npm install -g .
+# Show server information
+backlog-mcp info
+
+# Manage configuration
+backlog-mcp config get <key>
+backlog-mcp config set <key> <value>
+
+# Validate setup
 backlog-mcp validate
 ```
 
-### Development vs Production Environment
+### Using with Claude
 
-| Aspect | Development | Production |
-|--------|------------|------------|
-| **Command** | `./dev.sh` or `node bin/backlog-mcp-dev.js` | `backlog-mcp` |
-| **Config Dir** | `~/.config/backlog-mcp-dev` | `~/.config/backlog-mcp` |
-| **Environment** | `BACKLOG_ENV=development` | `BACKLOG_ENV=production` |
-| **Installation** | Direct execution | Global npm package |
-| **Claude Code** | `node /path/to/bin/backlog-mcp-dev.js start` | `backlog-mcp start` |
+Once configured, you can use natural language in Claude:
 
-## Testing
+- "Create a high-priority task for implementing user authentication"
+- "Show me all tasks with status 'In Progress'"
+- "Edit task-123 to change its status to 'Done'"
+- "View the details of task-456"
+- "Display the Kanban board"
+- "Archive task-789"
+- "Get the current project configuration"
 
-### Unit Tests
-```bash
-npm test                            # Run unit tests
-npm run test:watch                  # Watch mode
-npm run test:coverage               # Coverage report
-```
 
-### Integration Testing
-```bash
-./test-mcp.sh                       # Full integration test
-```
 
-### Linting and Type Checking
-```bash
-npm run lint                        # ESLint
-npm run lint:fix                    # Auto-fix issues
-npm run typecheck                   # TypeScript check
-```
-
-### Security Testing
-
-Run security-specific tests:
-```bash
-npm test test/security.test.ts
-```
-
-Security tests cover:
-- Command injection prevention
-- Path traversal protection
-- Input validation
-- Configuration security
-- Rate limiting (for future use)
-- Permission checks
-- Secrets protection
-npm run format                      # Prettier formatting
-```
-
-### Manual Testing with Claude Code
-
-#### Add Development Version
-```bash
-# Replace /absolute/path/to with your actual path
-claude mcp add backlog-md-dev -- node /absolute/path/to/Backlog.md-mcp/bin/backlog-mcp-dev.js start
-```
-
-#### Switch Between Versions
-```bash
-# Use development version
-claude mcp remove backlog-md
-claude mcp add backlog-md-dev -- node /path/to/bin/backlog-mcp-dev.js start
-
-# Switch back to production
-claude mcp remove backlog-md-dev
-claude mcp add backlog-md -- backlog-mcp start
-```
-
-## Code Style & Conventions
-
-### TypeScript Configuration
-- **Target**: ES2020
-- **Module**: ESNext
-- **Strict mode enabled**
-- **Path mapping** for clean imports
-
-### ESLint Rules
-- **@typescript-eslint/recommended**
-- **Security plugin** enabled
-- **Prettier integration**
-
-### Code Conventions
-- Use **async/await** over Promises
-- **Error handling** with try/catch blocks
-- **Type safety** - avoid `any` types
-- **JSDoc comments** for public APIs
-- **Consistent naming**: camelCase for variables, PascalCase for types
-
-### Security Considerations
-
-When developing new features:
-1. **Validate all user inputs** using functions from `src/security.ts`
-2. **Escape shell arguments** using `escapeShellArg()` for any command execution
-3. **Validate file paths** using `sanitizePath()` and `isPathAllowed()` for filesystem operations
-4. **Check configuration keys** using `isValidConfigKey()` to prevent prototype pollution
-5. **Follow pass-through philosophy** - escape dangerous characters, don't remove them
-6. **Add security tests** for any new user-facing functionality
-
-Security functions available:
-- `escapeShellArg(arg)` - Escapes shell metacharacters
-- `validateArguments(args)` - Validates command arguments
-- `sanitizePath(path)` - Prevents directory traversal
-- `isPathAllowed(path, dirs)` - Restricts file access
-- `isValidConfigKey(key)` - Prevents prototype pollution
-
-### File Organization
-```typescript
-// Import order
-import * as node from 'node:modules';
-import * as external from 'external-packages';
-import * as internal from './internal-modules';
-
-// Export organization
-export { specificExports };
-export type { TypeExports };
-export default defaultExport;
-```
-
-## Environment Management
-
-### Development Environment Variables
-
-The development wrapper automatically sets:
-```bash
-BACKLOG_ENV=development
-BACKLOG_CONFIG_DIR=~/.config/backlog-mcp-dev
-BACKLOG_DEV_MODE=true
-```
-
-### Configuration Directories
-
-- **Development**: `~/.config/backlog-mcp-dev/`
-- **Production**: `~/.config/backlog-mcp/` (or `~/.backlog-mcp/`)
-
-### Environment Detection
-
-```typescript
-// In source code
-const isDevelopment = process.env.BACKLOG_ENV === 'development';
-const configDir = process.env.BACKLOG_CONFIG_DIR || getDefaultConfigDir();
-```
 
 ## Troubleshooting
 
@@ -405,210 +249,42 @@ const configDir = process.env.BACKLOG_CONFIG_DIR || getDefaultConfigDir();
    backlog-mcp detect
    ```
 
-**Why this happens**: PowerShell and Git Bash handle executable resolution differently. The MCP server now tries multiple detection strategies:
-- System `where`/`which` command
-- npm global installation paths
-- Common Windows installation locations
-- Local bundled version
+### Server Not Connecting
+- Ensure `backlog-mcp` is in your PATH
+- Run `backlog-mcp validate` to check setup
 
-#### Workaround for Legacy Versions
-If using an older version of the MCP server:
-1. Launch Claude Code from Git Bash instead of PowerShell
-2. Or manually configure the path as shown above
+### Commands Failing
+- Ensure you have a valid Backlog.md repository initialized (`backlog init`)
+- Check that you're in the correct project directory
+- Verify the Backlog.md CLI works: `backlog --help`
+- Ensure status values match your Backlog.md configuration exactly (check with `backlog config get statuses`)
 
-### Common Development Issues
+### Commands Hanging or No Response
+- This typically means the CLI is waiting for interactive input
+- The MCP server should automatically use `--plain` flags to prevent this
+- Check that you're using the latest version of the MCP server
 
-#### Build Failures
-```bash
-# Clean build
-rm -rf dist/
-./build.sh
-```
-
-#### Test Failures
-```bash
-# Check TypeScript compilation
-npm run typecheck
-
-# Run specific test
-npm test -- --grep "specific test"
-```
-
-#### Environment Issues
-```bash
-# Verify development environment
-./dev.sh validate
-
-# Check environment variables
-node -e "console.log('BACKLOG_ENV:', process.env.BACKLOG_ENV)"
-```
-
-#### MCP Server Issues
-```bash
-# Test server startup
-./dev.sh start
-
-# Check server logs (if available)
-tail -f ~/.config/backlog-mcp-dev/logs/server.log
-```
-
-### Debugging Tips
-
-1. **Enable verbose logging**:
-   ```bash
-   DEBUG=* ./dev.sh start
-   ```
-
-3. **Test MCP tools individually**:
-   ```bash
-   # Use MCP inspector or similar tools
-   ```
-
-### Known Issues
-
-- **Multi-instance Race Conditions**: Multiple Claude instances using the same MCP server on the same project may cause file conflicts and data corruption. See [task-001](backlog/tasks/task-001%20-%20File-operation-race-conditions-with-multiple-MCP-instances.md) for details and planned fixes.
+### Debugging
+- Use verbose mode: `backlog-mcp start --verbose`
+- Run `backlog-mcp info` to see server capabilities
+- Use `backlog-mcp detect` to diagnose path resolution issues
 
 ## Contributing
 
-### CI/CD and GitHub Actions
+To contribute to this project, see the [GitHub repository](https://github.com/radleta/Backlog.md-mcp) for development setup, testing procedures, and contribution guidelines.
 
-For details on our continuous integration and deployment setup:
-- See [GitHub Actions Documentation](.github/workflows/README.md)
-- Required secrets for maintainers and forks
-- Workflow triggers, test matrix, and troubleshooting
-- Release automation and publishing process
+## License
 
-### Development Process
+MIT License - See LICENSE file for details
 
-1. **Fork and clone** the repository
-2. **Create a feature branch**: `git checkout -b feature/your-feature`
-3. **Make changes** in `src/`
-4. **Test your changes**: `./test-mcp.sh`
-5. **Commit changes**: Follow conventional commit format
-6. **Push and create PR**
+## Related Projects
 
-### Commit Message Format
-```
-type(scope): description
+- [Backlog.md](https://github.com/MrLesk/Backlog.md) - The task management system
+- [Model Context Protocol](https://modelcontextprotocol.io/) - MCP specification
+- [Claude](https://claude.ai) - AI assistant with MCP support
 
-- feat: new feature
-- fix: bug fix
-- docs: documentation changes
-- refactor: code refactoring
-- test: test additions/changes
-- chore: maintenance tasks
-```
+## Support
 
-### Pull Request Guidelines
-
-- **Clear description** of changes
-- **Tests pass** (`./test-mcp.sh`)
-- **No linting errors** (`npm run lint`)
-- **TypeScript compiles** (`npm run typecheck`)
-- **Updated documentation** if needed
-
-### Release Process
-
-The release process is now fully automated using npm lifecycle scripts:
-
-#### 1. Pre-Release Validation
-```bash
-npm run release  # Check package size, files, and readiness
-```
-
-#### 2. Version Bump and Release
-```bash
-npm version [patch|minor|major]  # Automatically:
-                                  # - Updates package version
-                                  # - Updates CHANGELOG.md 
-                                  # - Commits changes
-                                  # - Creates git tag
-                                  # - Pushes to remote
-                                  # - Triggers CI/CD to publish to npm
-```
-
-#### 3. What Happens Automatically
-
-**During `npm version`:**
-- Runs `version` script: Updates CHANGELOG.md by moving "Unreleased" content to new version section
-- Commits version bump and changelog changes
-- Creates git tag (e.g., `v0.1.1`)
-- Runs `postversion` script: Pushes commits and tags to remote repository
-
-**GitHub Actions then automatically:**
-- Runs full validation (build, test, lint, typecheck)
-- Publishes to npm if all checks pass
-
-#### 4. Manual Steps (Legacy Reference)
-If you need to bypass automation:
-1. Manually update version in `package.json`
-2. Manually update `CHANGELOG.md`
-3. Create git tag: `git tag v1.x.x && git push --tags`
-4. Build and publish: `npm publish` (only if bypassing CI/CD)
-
-## Implementation Guidelines
-
-### Adding New Features
-
-**When to Add MCP Enhancement vs CLI Pass-through:**
-
-**Add MCP Enhancement when:**
-- CLI doesn't support the feature natively
-- Need to combine multiple CLI operations
-- Want to provide convenience/aggregation features
-- Need custom output formatting
-
-**Use CLI Pass-through when:**
-- CLI already supports the operation
-- No additional processing needed
-- Want to maintain data integrity for write operations
-
-**Performance Considerations:**
-- Label filtering makes N+1 CLI calls (expensive for large task lists)
-- Decision operations use direct filesystem access (efficient)
-- Priority grouping makes multiple CLI calls but caches results
-- Avoid artificial input validation that restricts CLI capabilities
-
-For the complete enhancement matrix showing which features are implemented how, see the README.md file.
-
-## Architecture Details
-
-### MCP Server Implementation
-
-The server (`src/server.ts`) implements:
-- **Tool handlers** for Backlog.md CLI commands
-- **Resource providers** for read-only data access
-- **Error handling** and validation
-- **Transport layer** (STDIO)
-
-#### Enhancement Functions
-- `groupTasksByPriority()` - Priority aggregation with "No Priority" section
-- `listDecisionFiles()` - Decision filesystem parsing with status extraction
-- Label filtering logic in `task_list` case (client-side implementation)
-
-### CLI Wrapper
-
-The CLI (`src/cli.ts`) provides:
-- **Command parsing** with Commander.js
-- **Configuration management**
-- **Validation and setup** tools
-- **Development mode** detection
-
-### Configuration System
-
-The config module (`src/config.ts`) handles:
-- **Environment-specific** config directories
-- **JSON configuration** persistence
-- **Path resolution** for Backlog.md CLI
-- **Project detection**
-
-## Resources
-
-- [Backlog.md Documentation](https://github.com/MrLesk/Backlog.md)
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Node.js Documentation](https://nodejs.org/docs/)
-
----
-
-For questions or support, please open an issue on the [GitHub repository](https://github.com/radleta/Backlog.md-mcp/issues).
+- **Issues**: [GitHub Issues](https://github.com/radleta/Backlog.md-mcp/issues)
+- **Backlog.md**: [Official Repository](https://github.com/MrLesk/Backlog.md)
+- **MCP Documentation**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
