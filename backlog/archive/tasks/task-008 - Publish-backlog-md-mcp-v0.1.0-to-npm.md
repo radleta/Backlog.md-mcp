@@ -1,9 +1,10 @@
 ---
 id: task-008
 title: Publish backlog-md-mcp v0.1.0 to npm
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-09-10 19:07'
+updated_date: '2025-09-11 01:07'
 labels:
   - release
   - npm

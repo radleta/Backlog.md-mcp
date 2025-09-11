@@ -1,10 +1,10 @@
 ---
 id: task-008.05
 title: Pre-publish validation
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-09-10 19:08'
-updated_date: '2025-09-10 19:12'
+updated_date: '2025-09-11 01:07'
 labels:
   - testing
   - validation

@@ -1,10 +1,10 @@
 ---
 id: task-008.06
 title: Publish to npm registry
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-09-10 19:08'
-updated_date: '2025-09-10 19:12'
+updated_date: '2025-09-11 01:07'
 labels:
   - npm
   - publish
