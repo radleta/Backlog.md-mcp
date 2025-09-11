@@ -161,9 +161,6 @@ async function runBacklogCommand(args: string[]): Promise<string> {
     throw new Error('Invalid command arguments detected');
   }
 
-  // Escape arguments to prevent shell injection
-  const escapedArgs = args.map(arg => escapeShellArg(arg));
-
   try {
     const backlogPath = await getBacklogCliPath();
 
@@ -172,6 +169,7 @@ async function runBacklogCommand(args: string[]): Promise<string> {
       
       let executablePath = backlogPath;
       let spawnOptions;
+      let argsToUse;
       
       if (isWindows) {
         // On Windows with shell, quote the executable path if it contains spaces
@@ -184,15 +182,19 @@ async function runBacklogCommand(args: string[]): Promise<string> {
           shell: true, // Use shell on Windows for batch file support
           windowsHide: true
         };
+        // Escape arguments when using shell to prevent injection
+        argsToUse = args.map(arg => escapeShellArg(arg));
       } else {
         spawnOptions = {
           cwd: projectDir,
           env: { ...process.env },
           shell: false
         };
+        // Use raw arguments when shell: false - Node.js handles them safely
+        argsToUse = args;
       }
       
-      const child = spawn(executablePath, escapedArgs, spawnOptions);
+      const child = spawn(executablePath, argsToUse, spawnOptions);
 
       let stdout = "";
       let stderr = "";

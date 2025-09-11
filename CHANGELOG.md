@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed?- **PowerShell Argument Passing**: Fix command failures with "too many arguments" errors in PowerShell
+### Fixed
+- **PowerShell Argument Passing**: Fix command failures with "too many arguments" errors in PowerShell
   - Enhanced `escapeShellArg` function to properly handle spaces in arguments on Windows
   - Uses double quotes on Windows (PowerShell-compatible) vs single quotes on Unix
   - Fixed executable path quoting when backlog CLI path contains spaces
-  - Improved spawn configuration for cross-platform shell compatibility?
+  - Improved spawn configuration for cross-platform shell compatibility
+- **Unix Shell Argument Escaping**: Fix command failures when using arguments with spaces on Unix systems
+  - Conditionally apply shell argument escaping only when using shell mode
+  - Unix systems now use raw arguments with `shell: false` for direct Node.js argument passing
+  - Windows continues using shell escaping with `shell: true` for .cmd/.bat compatibility
+  - Fixes task creation with status values like "To Do" and "In Progress" on Linux/Mac
+  - Added comprehensive test coverage for shell argument handling across platforms
+
 ## [0.1.5] - 2025-09-11
 
 ### Added
