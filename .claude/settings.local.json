@@ -59,7 +59,8 @@
       "Bash(npm run pack:dry:*)",
       "Bash(git describe:*)",
       "Bash(git log:*)",
-      "mcp__backlog-md-dev__draft_promote"
+      "mcp__backlog-md-dev__draft_promote",
+      "Bash(git show-ref:*)"
     ],
     "deny": [],
     "ask": []
