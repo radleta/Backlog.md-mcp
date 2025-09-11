@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Comprehensive GitHub Actions documentation (.github/workflows/README.md)
+  - Complete CI/CD pipeline documentation for contributors and maintainers
+  - OIDC Trusted Publishing setup instructions with step-by-step configuration
+  - Security best practices and troubleshooting guide
+  - Workflow triggers, test matrix, and release process documentation
+
+### Changed
+- **BREAKING**: Migrate from npm tokens to OIDC Trusted Publishing for secure releases
+  - GitHub Actions workflows now use OpenID Connect (OIDC) for token-free authentication
+  - Added id-token: write permission to release workflow
+  - Removed NODE_AUTH_TOKEN dependency from npm publishing step
+  - Enhanced security with short-lived, workflow-specific credentials
+  - Automatic provenance attestations for improved supply chain security
+- Fix GitHub Actions release workflow build order
+  - Build step now runs before tests to prevent "dist not found" failures
+  - Consistent npm ci → npm run build → npm test sequence across all workflows
+  - Standardized build commands for CI/CD pipeline reliability
+
 ### Fixed
 - Move npm README to root as README (without extension) for proper npm package page display
   - Moved npm/README.md to root as README to fix npm display issue
@@ -17,6 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Renamed test suite from "NPM Package Structure" to "Package Documentation Structure"
   - Updated tests to verify README (user docs) and README.md (developer docs) exist
   - All 87 tests now pass after README reorganization
+- Make test files robust for missing build artifacts
+  - CLI integration tests gracefully skip when dist/cli.js doesn't exist
+  - Build output tests provide helpful warnings for unbuilt projects
+  - Tests work in both development (unbuilt) and CI (built) environments
+- Add spell check configuration (.vscode/settings.json)
+  - Fixed cSpell warnings for project-specific terms (npmjs, exfiltrated, OIDC)
+  - Improved VS Code development experience
 
 ## [0.1.2] - 2025-09-11
 

@@ -433,6 +433,14 @@ tail -f ~/.config/backlog-mcp-dev/logs/server.log
 
 ## Contributing
 
+### CI/CD and GitHub Actions
+
+For details on our continuous integration and deployment setup:
+- See [GitHub Actions Documentation](.github/workflows/README.md)
+- Required secrets for maintainers and forks
+- Workflow triggers, test matrix, and troubleshooting
+- Release automation and publishing process
+
 ### Development Process
 
 1. **Fork and clone** the repository

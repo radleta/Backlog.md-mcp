@@ -17,6 +17,7 @@ jobs:
     
     permissions:
       contents: write
+      id-token: write
       packages: write
     
     steps:
@@ -39,12 +40,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Build project
+        run: npm run build
+      
       - name: Run tests
         run: npm test
-      
-      - name: Build project
-        run: |
-          ./build.sh
       
       - name: Set version (manual trigger)
         if: github.event_name == 'workflow_dispatch'
@@ -60,8 +60,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
           npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
