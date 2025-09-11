@@ -63,7 +63,7 @@
 		"postversion": "git push && git push --tags",
 		"pack:dry": "npm pack --dry-run",
 		"size:check": "npm pack --dry-run 2>&1 | grep 'package size' | head -1",
-		"release": "npm run pack:dry && npm run size:check && echo 'Ready for release. Run: npm version [patch|minor|major] && npm publish'"
+		"release": "npm run pack:dry && npm run size:check && echo 'Ready for release. Run: npm version [patch|minor|major] to trigger CI/CD release'"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^0.6.0",

@@ -487,8 +487,7 @@ npm version [patch|minor|major]  # Automatically:
                                   # - Commits changes
                                   # - Creates git tag
                                   # - Pushes to remote
-
-npm publish  # Automatically runs tests and validation before publishing
+                                  # - Triggers CI/CD to publish to npm
 ```
 
 #### 3. What Happens Automatically
@@ -499,16 +498,16 @@ npm publish  # Automatically runs tests and validation before publishing
 - Creates git tag (e.g., `v0.1.1`)
 - Runs `postversion` script: Pushes commits and tags to remote repository
 
-**During `npm publish`:**
-- Runs `prepublishOnly` script: Full validation (build, test, lint, typecheck)
-- Only publishes if all checks pass
+**GitHub Actions then automatically:**
+- Runs full validation (build, test, lint, typecheck)
+- Publishes to npm if all checks pass
 
 #### 4. Manual Steps (Legacy Reference)
 If you need to bypass automation:
 1. Manually update version in `package.json`
 2. Manually update `CHANGELOG.md`
 3. Create git tag: `git tag v1.x.x && git push --tags`
-4. Build and publish: `npm publish`
+4. Build and publish: `npm publish` (only if bypassing CI/CD)
 
 ## Implementation Guidelines
 

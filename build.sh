@@ -41,8 +41,7 @@ if [ -f "dist/cli.js" ] && [ -f "dist/server.js" ] && [ -f "dist/index.js" ]; th
     echo ""
     echo "To publish:"
     echo "  npm run release                      # Verify readiness"
-    echo "  npm version [patch|minor|major]     # Auto-update changelog & push"
-    echo "  npm publish                          # Auto-validate & publish"
+    echo "  npm version [patch|minor|major]     # Triggers full release via CI/CD"
 else
     echo "❌ Build failed - missing expected files"
     exit 1
