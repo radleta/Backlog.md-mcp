@@ -1,6 +1,6 @@
 {
 	"name": "@radleta/backlog-md-mcp",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"type": "module",
 	"private": false,
 	"description": "MCP (Model Context Protocol) server for Backlog.md task management - integrate Backlog.md with Claude Code",
