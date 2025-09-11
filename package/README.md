@@ -1,14 +1,14 @@
-# Backlog.md MCP Integration
+# Backlog.md MCP Server
 
-This repository provides an MCP (Model Context Protocol) server that integrates [Backlog.md](https://github.com/MrLesk/Backlog.md) with Claude Code, enabling Claude to directly manage tasks, view boards, and handle sprints through natural language.
+An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.com/MrLesk/Backlog.md) task management system, enabling AI assistants like Claude to directly manage tasks and view Kanban boards.
 
 ## Features
 
 ### 🛠️ Available Tools
 
 - **Task Management**
-  - `task_create` - Create new tasks with full support for title, description, status, priority, tags, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
-  - `task_list` - List tasks with enhanced filtering by status, tag, priority, assignee, parent task ID, and sorting options (priority, id)
+  - `task_create` - Create new tasks with full support for title, description, status, priority, labels, assignee, plan, notes, acceptance criteria, dependencies, parent tasks, and draft mode
+  - `task_list` - List tasks with enhanced filtering by status, label, priority, assignee, parent task ID, and sorting options (priority, id)
   - `task_edit` - Edit existing tasks with comprehensive support for all task properties, acceptance criteria management (add/remove/check/uncheck), label management, and custom ordering
   - `task_view` - View detailed task information
   - `task_archive` - Archive tasks
@@ -48,6 +48,25 @@ This repository provides an MCP (Model Context Protocol) server that integrates 
   - `browser` - Launch web interface with optional port and browser settings
   - `agents_update` - Update agent instruction files (.cursorrules, CLAUDE.md, AGENTS.md, etc.)
 
+## Design Philosophy
+
+The Backlog.md MCP Server is a reliable wrapper around the Backlog.md CLI that exposes all available commands through the MCP interface while adding useful enhancements for AI assistants.
+
+## Security
+
+The MCP server implements comprehensive security measures including input validation, command injection prevention, and path traversal protection to keep your projects safe.
+
+## Key Features
+
+Beyond the standard Backlog.md functionality, this MCP server adds:
+
+- **Enhanced Filtering**: Filter tasks by labels, priority, and status
+- **Task Grouping**: View tasks organized by priority levels
+- **Rich Resources**: Access tasks, boards, and statistics via `backlog://` URLs
+- **Decision Records**: Create and list architectural decision records
+- **Full CLI Access**: All native Backlog.md commands available through natural language
+
+
 ### 📚 Available Resources
 
 - `backlog://tasks/all` - View all tasks in markdown format
@@ -61,151 +80,182 @@ This repository provides an MCP (Model Context Protocol) server that integrates 
 - `backlog://tasks/by-priority` - Tasks grouped by priority levels
 - `backlog://statistics` - Enhanced project statistics and metrics
 
+## Prerequisites
+
+Before using the MCP server, ensure:
+
+1. **Backlog.md is installed**: The MCP server requires the [Backlog.md CLI](https://github.com/MrLesk/Backlog.md) to be available
+2. **Project initialization**: Your project must have Backlog.md initialized (`backlog init`)
+3. **Working directory**: The MCP server runs commands in the directory where Claude is working
+
+### Important Notes
+
+- **Status values**: Must match your Backlog.md configuration exactly (check with `backlog config get statuses`)
+- **Non-interactive mode**: The MCP server automatically uses `--plain` flags to prevent interactive prompts
+- **Labels**: Use the `labels` parameter in MCP commands, which maps to `--labels` in the CLI
+
+### Limitations
+
+- **Initialization**: The `backlog init` command cannot be implemented through MCP as it requires interactive user input. Projects must be initialized manually before using the MCP server.
+- **Interactive Commands**: Any Backlog.md commands that require user interaction are not available through the MCP interface.
+
+### Tool Parameter Details
+
+- **task_create**: 
+  - `title` (required): Task title as a string
+  - `description` (optional): Task description
+  - `status` (optional): Must match your Backlog.md configuration exactly (check with `backlog config get statuses`)
+  - `priority` (optional): "low", "medium", or "high"
+  - `labels` (optional): Array of strings (mapped to `--labels` in CLI)
+
+- **task_list**:
+  - `status` (optional): Filter by status or "all" for all tasks
+  - `label` (optional): Filter by a specific label
+  - `priority` (optional): Filter by priority level
+
+- **task_edit**:
+  - `taskId` (required): Task identifier (e.g., "task-123")
+  - `title`, `description`, `status`, `priority` (all optional): New values
+
+- **task_view**:
+  - `taskId` (required): Task identifier to view
+
+- **task_archive**:
+  - `taskId` (required): Task identifier to archive
+
 ## Installation
 
-### Prerequisites
+### From npm
 
-- [Bun](https://bun.sh) runtime installed
-- [Claude Code](https://claude.ai) CLI tool
-- Git for cloning with submodules
+```bash
+npm install -g @radleta/backlog-md-mcp
+```
 
-### Setup Steps
 
-1. **Clone this repository with submodules**:
+## Quick Start
+
+Get up and running with Backlog.md MCP Server in 3 steps:
+
+1. **Install the package**:
    ```bash
-   git clone --recursive https://github.com/[your-username]/backlog-mcp-integration.git
-   cd backlog-mcp-integration
+   npm install -g @radleta/backlog-md-mcp
    ```
 
-2. **Install dependencies**:
+2. **Add to Claude Code**:
    ```bash
-   # Install MCP server dependencies
-   cd src
-   bun install
-   
-   # Build the Backlog.md CLI
-   cd ../Backlog.md
-   bun install
-   bun run build
+   claude mcp add backlog-md -- backlog-mcp start
    ```
 
-3. **Configure Claude Code**:
-   
-   Use the Claude CLI to add the server:
-   ```bash
-   claude mcp add backlog-md -- bun run /absolute/path/to/backlog-mcp-integration/src/backlog-mcp-server.ts
+3. **Start using it with Claude**:
+   ```
+   "Create a high-priority task for implementing user authentication"
+   "Show me all tasks with status 'In Progress'"  
+   "Display the Kanban board"
    ```
 
-   ⚠️ **Important**: Replace `/absolute/path/to/backlog-mcp-integration` with the actual absolute path to where you cloned this repository.
+**Prerequisites**: Ensure you have [Backlog.md CLI](https://github.com/MrLesk/Backlog.md) installed and your project initialized with `backlog init`.
+
+For detailed configuration options, see the [Configuration](#configuration) section below.
+
+## Configuration
+
+### Setup
+
+For Claude Code users:
+
+```bash
+# Install the server globally
+npm install -g @radleta/backlog-md-mcp
+
+# Add to Claude Code
+claude mcp add backlog-md -- backlog-mcp start
+```
+
+```bash
+# Install the server globally first
+npm install -g @radleta/backlog-md-mcp
+
+# Add to Claude Code (user scope - available in all projects)
+claude mcp add backlog-md --scope user -- backlog-mcp start
+
+# Or add for current project only
+claude mcp add backlog-md --scope project -- backlog-mcp start
+```
 
 ## Usage
 
-Once the MCP server is connected, you can interact with your backlog through Claude using natural language:
-
-### Example Commands
-
-- **Creating Tasks**:
-  - "Create a new high-priority task for implementing user authentication"
-  - "Add a task titled 'Fix login bug' with urgent priority"
-
-- **Viewing Tasks**:
-  - "Show me all tasks that are in progress"
-  - "List all blocked tasks"
-  - "What high-priority tasks do I have?"
-
-- **Managing Tasks**:
-  - "Move task-123 to done"
-  - "Edit task-456 to change its priority to high"
-  - "Delete task-789"
-
-- **Board & Sprint Operations**:
-  - "Display the Kanban board"
-  - "Create a new sprint starting Monday for 2 weeks"
-  - "Show the current sprint details"
-
-## Data Storage
-
-**Important**: This MCP server does not store any backlog data itself. It acts as a bridge between Claude Code and the Backlog.md CLI tool.
-
-### How Data Storage Works
-
-- **Backlog data location**: All tasks, boards, and sprint data are stored by the underlying Backlog.md CLI according to its own configuration and working directory
-- **MCP server config**: Only stores server settings in `~/.backlog-mcp/config.json` (things like custom CLI path)
-- **Claude Code config**: Stores MCP server connection details in Claude Code's MCP configuration
-
-### Finding Your Backlog Data
-
-To determine where your backlog files are actually saved:
-- Ask Claude: "What's the current backlog storage configuration?"
-- Or use: "Show me the backlog config settings"
-- The MCP server will query the Backlog.md CLI to get the actual data storage location
-
-### Data Backup
-
-Since all data is managed by the Backlog.md CLI, refer to the [Backlog.md documentation](https://github.com/MrLesk/Backlog.md) for backup and data management procedures.
-
-## Project Structure
-
-```
-backlog-mcp-integration/
-├── src/                          # MCP server implementation
-│   ├── backlog-mcp-server.ts    # Main server file
-│   ├── package.json             # Server dependencies
-│   └── claude-config-example.json # Example configuration
-├── Backlog.md/                  # Official Backlog.md submodule
-│   └── ...                      # Core Backlog.md project files
-└── README.md                    # This file
-```
-
-## Development
-
-### Running the Server Standalone
-
-For testing and development:
+### CLI Commands
 
 ```bash
-cd src
-bun run start
+# Start the MCP server
+backlog-mcp start
+
+# Interactive setup
+backlog-mcp setup
+
+# Show server information
+backlog-mcp info
+
+# Manage configuration
+backlog-mcp config get <key>
+backlog-mcp config set <key> <value>
+
+# Validate setup
+backlog-mcp validate
 ```
 
-### Updating Backlog.md
+### Using with Claude
 
-To update to the latest version of Backlog.md:
+Once configured, you can use natural language in Claude:
 
-```bash
-git submodule update --remote Backlog.md
-cd Backlog.md
-bun install
-bun run build
-```
+- "Create a high-priority task for implementing user authentication"
+- "Show me all tasks with status 'In Progress'"
+- "Edit task-123 to change its status to 'Done'"
+- "View the details of task-456"
+- "Display the Kanban board"
+- "Archive task-789"
+- "Get the current project configuration"
+
+
+
 
 ## Troubleshooting
 
 ### Server Not Connecting
-- Ensure you're using absolute paths in the Claude configuration
-- Verify Bun is installed and accessible in your PATH
-- Verify the MCP server was properly configured with Claude Code
+- Ensure `backlog-mcp` is in your PATH
+- Run `backlog-mcp validate` to check setup
 
 ### Commands Failing
-- Ensure the Backlog.md CLI is built: `cd Backlog.md && bun run build`
-- Check that you have a valid backlog structure in your working directory
-- Verify the backlog configuration with: `cd Backlog.md && bun run cli config list`
+- Ensure you have a valid Backlog.md repository initialized (`backlog init`)
+- Check that you're in the correct project directory
+- Verify the Backlog.md CLI works: `backlog --help`
+- Ensure status values match your Backlog.md configuration exactly (check with `backlog config get statuses`)
+
+### Commands Hanging or No Response
+- This typically means the CLI is waiting for interactive input
+- The MCP server should automatically use `--plain` flags to prevent this
+- Check that you're using the latest version of the MCP server
 
 ### Debugging
-- The MCP server logs to stderr, which won't interfere with Claude communication
-- Check Claude Code logs for connection errors
-- Run the server standalone to see detailed error messages
+- Use verbose mode: `backlog-mcp start --verbose`
+- Run `backlog-mcp info` to see server capabilities
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues or pull requests.
+To contribute to this project, see the [GitHub repository](https://github.com/radleta/Backlog.md-mcp) for development setup, testing procedures, and contribution guidelines.
 
 ## License
 
-This MCP integration follows the same license as the parent Backlog.md project.
+MIT License - See LICENSE file for details
 
 ## Related Projects
 
-- [Backlog.md](https://github.com/MrLesk/Backlog.md) - The official task management system
-- [Model Context Protocol](https://modelcontextprotocol.io) - The protocol specification
-- [Claude](https://claude.ai) - The AI assistant that uses this integration
+- [Backlog.md](https://github.com/MrLesk/Backlog.md) - The task management system
+- [Model Context Protocol](https://modelcontextprotocol.io/) - MCP specification
+- [Claude](https://claude.ai) - AI assistant with MCP support
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/radleta/Backlog.md-mcp/issues)
+- **Backlog.md**: [Official Repository](https://github.com/MrLesk/Backlog.md)
+- **MCP Documentation**: [modelcontextprotocol.io](https://modelcontextprotocol.io)

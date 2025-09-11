@@ -228,8 +228,8 @@ To remove the MCP server:
 
 ## Getting Help
 
-- **Documentation**: https://github.com/radleta/backlog-md-mcp
-- **Issues**: https://github.com/radleta/backlog-md-mcp/issues
+- **Documentation**: https://github.com/radleta/Backlog.md-mcp
+- **Issues**: https://github.com/radleta/Backlog.md-mcp/issues
 - **Backlog.md**: https://github.com/MrLesk/Backlog.md
 
 Run `backlog-mcp --help` for a list of all available commands.

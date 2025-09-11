@@ -183,7 +183,7 @@ Resources:
 - backlog://sprint/current Current sprint
 
 For more information, visit:
-https://github.com/radleta/backlog-md-mcp
+https://github.com/radleta/Backlog.md-mcp
 		`));
 	});
 

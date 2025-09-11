@@ -15,13 +15,13 @@
 		"kanban",
 		"sprint-management"
 	],
-	"homepage": "https://github.com/radleta/backlog-md-mcp#readme",
+	"homepage": "https://github.com/radleta/Backlog.md-mcp#readme",
 	"bugs": {
-		"url": "https://github.com/radleta/backlog-md-mcp/issues"
+		"url": "https://github.com/radleta/Backlog.md-mcp/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/radleta/backlog-md-mcp.git"
+		"url": "git+https://github.com/radleta/Backlog.md-mcp.git"
 	},
 	"license": "MIT",
 	"author": {
