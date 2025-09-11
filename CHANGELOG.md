@@ -8,7 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Fix npm package README display by moving npm/README.md to README (without extension)
+- Move npm README to root as README (without extension) for proper npm package page display
+  - Moved npm/README.md to root as README to fix npm display issue
+  - Updated package.json files array to reference README instead of npm/README.md
+  - Updated CLAUDE.md documentation references
+  - Removed empty npm directory
+- Update tests to reflect new README structure
+  - Renamed test suite from "NPM Package Structure" to "Package Documentation Structure"
+  - Updated tests to verify README (user docs) and README.md (developer docs) exist
+  - All 87 tests now pass after README reorganization
 
 ## [0.1.2] - 2025-09-11
 
