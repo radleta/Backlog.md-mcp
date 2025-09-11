@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Use bunfig.toml for consistent cross-platform test execution
+- Update test command paths for Windows compatibility  
+- Update GitHub Actions workflows for consolidated directory structure
+
 ## [0.1.1] - 2025-09-11
 
 ### Changed
@@ -20,18 +25,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated all path references in documentation and scripts
 - Unified package.json with merged dependencies and updated paths
 - Updated TypeScript configuration for new directory structure
+- Updated README.md project structure diagram and all path references
+- Updated CLAUDE.md to reference npm/README.md instead of package/README.md
+- Maintained separation between developer docs (root README.md) and user docs (npm/README.md)
+- Fixed all command examples and development workflow instructions
+- Updated CHANGELOG.md with recent commits since v0.1.0
+- Improved package README.md for npm users
+- Reorganized documentation and fixed repository URLs
+- Completed task-008 npm publishing milestone and archive
+
+### Added
+- ES module support to eliminate npm version script warnings
+- Git commands to allowed permissions in settings.local.json
 
 ### Fixed  
 - Fixed test configuration to exclude Backlog.md submodule tests
 - Updated all shell scripts (build.sh, dev.sh, test-mcp.sh) for new paths
 - Corrected bin script paths in package.json and development workflows
 - Fixed all documentation path references from old structure
-
-### Documentation
-- Updated README.md project structure diagram and all path references
-- Updated CLAUDE.md to reference npm/README.md instead of package/README.md
-- Maintained separation between developer docs (root README.md) and user docs (npm/README.md)
-- Fixed all command examples and development workflow instructions
 
 ### Tested
 - Verified all 88 tests pass with new structure
