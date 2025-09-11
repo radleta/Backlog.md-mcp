@@ -168,22 +168,31 @@ async function runBacklogCommand(args: string[]): Promise<string> {
     const backlogPath = await getBacklogCliPath();
 
     return new Promise((resolve, reject) => {
-      // On Windows, always use shell and explicitly quote paths with spaces
       const isWindows = process.platform === 'win32';
-      const needsShell = isWindows; // Always use shell on Windows for robust path handling
       
-      // On Windows, explicitly quote the path if it contains spaces
       let executablePath = backlogPath;
-      if (isWindows && backlogPath.includes(' ') && !backlogPath.startsWith('"')) {
-        executablePath = `"${backlogPath}"`;
+      let spawnOptions;
+      
+      if (isWindows) {
+        // On Windows with shell, quote the executable path if it contains spaces
+        if (backlogPath.includes(' ') && !backlogPath.startsWith('"')) {
+          executablePath = `"${backlogPath}"`;
+        }
+        spawnOptions = {
+          cwd: projectDir,
+          env: { ...process.env },
+          shell: true, // Use shell on Windows for batch file support
+          windowsHide: true
+        };
+      } else {
+        spawnOptions = {
+          cwd: projectDir,
+          env: { ...process.env },
+          shell: false
+        };
       }
       
-      const child = spawn(executablePath, escapedArgs, {
-        shell: needsShell, // Use shell on Windows to handle spaces and batch files
-        cwd: projectDir, // Run command in project directory
-        env: { ...process.env },
-        windowsHide: true, // Prevent popup windows on Windows
-      });
+      const child = spawn(executablePath, escapedArgs, spawnOptions);
 
       let stdout = "";
       let stderr = "";

@@ -23,14 +23,25 @@ export function validateArguments(args: string[]): boolean {
 
 /**
  * Escapes shell arguments to prevent command injection
+ * Works for both Unix shells and Windows PowerShell/cmd
  * @param arg The argument to escape
  * @returns The safely escaped argument
  */
 export function escapeShellArg(arg: string): string {
-  if (arg.match(/[;|&`$()\\]/)) {
-    return `'${arg.replace(/'/g, "\\'")}'`;
+  // If argument has no special characters or spaces, return as-is
+  if (!arg.match(/[\s;|&`$()\\'"]/)) {
+    return arg;
   }
-  return arg;
+  
+  // On Windows (PowerShell/cmd), use double quotes and escape internal quotes
+  if (process.platform === 'win32') {
+    // Escape any existing double quotes by doubling them
+    const escaped = arg.replace(/"/g, '""');
+    return `"${escaped}"`;
+  }
+  
+  // On Unix systems, use single quotes and escape internal single quotes
+  return `'${arg.replace(/'/g, "\\'")}'`;
 }
 
 /**

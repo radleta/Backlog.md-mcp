@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic handling of Windows executable extensions (.cmd, .exe, .bat)
   - Improved spawn options for Windows batch files
   - Better error messages with troubleshooting guidance
+- **PowerShell Argument Passing**: Fix command failures with "too many arguments" errors in PowerShell
+  - Enhanced `escapeShellArg` function to properly handle spaces in arguments on Windows
+  - Uses double quotes on Windows (PowerShell-compatible) vs single quotes on Unix
+  - Fixed executable path quoting when backlog CLI path contains spaces
+  - Improved spawn configuration for cross-platform shell compatibility
 - Path resolution fallback chain ensures MCP works with global, local, and bundled installations
 - Enhanced configuration validation prevents invalid custom paths from causing failures
 
