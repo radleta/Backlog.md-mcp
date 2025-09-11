@@ -1,6 +1,7 @@
 {
 	"name": "backlog-mcp-source",
 	"version": "1.0.0",
+	"type": "module",
 	"private": true,
 	"description": "Build environment for Backlog.md MCP Server",
 	"scripts": {

@@ -5,8 +5,13 @@
  * This ensures package.json and other files are in the right place for the dist
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Files to copy from source to package after build
 const filesToCopy = [
