@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed?- **PowerShell Argument Passing**: Fix command failures with "too many arguments" errors in PowerShell
+  - Enhanced `escapeShellArg` function to properly handle spaces in arguments on Windows
+  - Uses double quotes on Windows (PowerShell-compatible) vs single quotes on Unix
+  - Fixed executable path quoting when backlog CLI path contains spaces
+  - Improved spawn configuration for cross-platform shell compatibility?
+## [0.1.5] - 2025-09-11
+
 ### Added
 - Cross-platform path resolution for backlog CLI executable
   - Automatic detection works across PowerShell, Command Prompt, Git Bash, and Unix shells
@@ -15,18 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced `validate` command with detailed path detection and testing
 
 ### Fixed
-- **Windows PowerShell Compatibility**: Resolve ENOENT errors when Claude Code launched from PowerShell
-  - MCP server now properly detects backlog CLI path on Windows regardless of shell environment
-  - Automatic handling of Windows executable extensions (.cmd, .exe, .bat)
-  - Improved spawn options for Windows batch files
-  - Better error messages with troubleshooting guidance
-- **PowerShell Argument Passing**: Fix command failures with "too many arguments" errors in PowerShell
-  - Enhanced `escapeShellArg` function to properly handle spaces in arguments on Windows
-  - Uses double quotes on Windows (PowerShell-compatible) vs single quotes on Unix
-  - Fixed executable path quoting when backlog CLI path contains spaces
-  - Improved spawn configuration for cross-platform shell compatibility
-- Path resolution fallback chain ensures MCP works with global, local, and bundled installations
-- Enhanced configuration validation prevents invalid custom paths from causing failures
+- **Windows PowerShell Compatibility**: Complete resolution of Windows execution issues
+  - **ENOENT Errors**: Fixed timeout issues in CI/CD environments with 2-second command timeouts
+  - **Path Detection**: Enhanced cross-platform detection with multiple fallback strategies
+  - **Space Handling**: Automatic path quoting for executables with spaces (e.g., `C:\Program Files\nodejs\backlog`)
+  - **Shell Integration**: Always use shell mode on Windows for robust path and batch file handling
+  - **Popup Prevention**: Added windowsHide option to prevent Windows popup dialogs
+- **Command Execution**: Resolves "C:\Program is not recognized" errors in PowerShell environments
+- **Path Resolution**: Enhanced fallback chain works with global, local, and bundled installations
+- **Configuration**: Improved validation prevents invalid custom paths from causing failures
+- **Testing**: Fixed CI/CD test timeouts on Windows runners
 
 ## [0.1.4] - 2025-09-11
 
