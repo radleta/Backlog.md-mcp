@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fix OIDC Trusted Publishing authentication in release workflow
+  - Update npm to latest version (11.5.1+) for OIDC support in GitHub Actions
+  - Resolves 404 errors when publishing despite correct npmjs.com configuration
+
 ## [0.1.3] - 2025-09-11
 
 ### Added

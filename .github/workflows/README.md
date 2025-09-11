@@ -77,14 +77,22 @@ Git Tag Push → Release Workflow (release.yml) → Build → Test → Publish �
    - Click **Add Publisher**
 
 2. **Workflow Already Configured:**
-   The release workflow includes the required OIDC permission:
+   The release workflow includes the required OIDC permission and npm version update:
    ```yaml
    permissions:
      contents: write    # For GitHub releases
      id-token: write    # For OIDC authentication
+   
+   steps:
+     - name: Update npm to latest version for OIDC support
+       run: |
+         npm install -g npm@latest
+         npm --version
    ```
 
 **Note:** No secrets configuration needed! OIDC handles authentication automatically.
+
+**Requirements:** npm CLI version 11.5.1+ is required for OIDC support (automatically updated in workflow).
 
 #### GITHUB_TOKEN (Automatically Provided)
 
