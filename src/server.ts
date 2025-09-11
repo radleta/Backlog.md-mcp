@@ -11,7 +11,7 @@ import { spawn } from "child_process";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { getBacklogCliPath, isBacklogInitialized } from "./config.js";
-import { escapeShellArg, validateArguments, sanitizePath, isPathAllowed, isValidConfigKey } from "./security.js";
+import { escapeShellArg, validateArguments, sanitizePath, isPathAllowed } from "./security.js";
 
 // Initialize MCP server
 export const server = new Server(
@@ -1072,8 +1072,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
       }
 
       case "config_get": {
-        // Validate configuration key for security
-        if (!isValidConfigKey(args.key)) {
+        // Only validate against dangerous keys that could cause prototype pollution
+        if (args.key.includes('__proto__') || args.key.includes('constructor') || args.key.includes('prototype')) {
           throw new Error(`Invalid configuration key: ${args.key}`);
         }
         const result = await runBacklogCommand(["config", "get", args.key]);
@@ -1081,8 +1081,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
       }
 
       case "config_set": {
-        // Validate configuration key for security
-        if (!isValidConfigKey(args.key)) {
+        // Only validate against dangerous keys that could cause prototype pollution
+        if (args.key.includes('__proto__') || args.key.includes('constructor') || args.key.includes('prototype')) {
           throw new Error(`Invalid configuration key: ${args.key}`);
         }
         const result = await runBacklogCommand([

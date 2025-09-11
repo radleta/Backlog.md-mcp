@@ -123,8 +123,8 @@ describe('Security Tests', () => {
 		});
 		
 		test('should validate configuration keys', () => {
-			const validKeys = ['backlogCliPath', 'transport', 'port', 'autoStart'];
-			const invalidKeys = ['__proto__', 'constructor', 'prototype', '../config'];
+			const validKeys = ['projectName', 'defaultStatus', 'statuses', 'labels', 'backlogCliPath', 'transport', 'port', 'autoStart'];
+			const invalidKeys = ['__proto__', 'constructor', 'prototype', 'key__proto__x', 'constructorX', 'prototypeY'];
 			
 			validKeys.forEach(key => {
 				expect(isValidConfigKey(key)).toBe(true);

@@ -77,13 +77,13 @@ export function validateTaskTitle(title: string): boolean {
 
 /**
  * Validates configuration keys to prevent prototype pollution
+ * Only blocks dangerous keys that could cause security issues
  * @param key The configuration key to validate
- * @returns true if key is valid, false otherwise
+ * @returns true if key is safe to use, false otherwise
  */
 export function isValidConfigKey(key: string): boolean {
-  const validKeys = ['backlogCliPath', 'transport', 'port', 'autoStart'];
   const blacklist = ['__proto__', 'constructor', 'prototype'];
-  return validKeys.includes(key) && !blacklist.includes(key);
+  return !blacklist.some(dangerous => key.includes(dangerous));
 }
 
 /**

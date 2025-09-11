@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Configuration Commands**: Fixed `config_get` and `config_set` MCP tools to properly pass through to Backlog.md CLI
+  - Removed restrictive validation that only allowed MCP server-specific keys
+  - Commands now work with all Backlog.md configuration keys (projectName, defaultStatus, statuses, etc.)
+  - Maintained security protection against prototype pollution attacks
+  - Aligns with MCP server design as a complete wrapper around Backlog.md CLI
+
 ## [0.1.6] - 2025-09-11
 
 ### Fixed
