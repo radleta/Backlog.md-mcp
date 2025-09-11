@@ -130,10 +130,13 @@ async function findBacklogExecutable(): Promise<string | null> {
 		const commonPaths = [
 			path.join(process.env.APPDATA || '', 'npm', 'backlog.cmd'),
 			path.join(process.env.APPDATA || '', 'npm', 'backlog.exe'),
+			path.join(process.env.APPDATA || '', 'npm', 'backlog'),
 			path.join(process.env.PROGRAMFILES || '', 'nodejs', 'backlog.cmd'),
 			path.join(process.env.PROGRAMFILES || '', 'nodejs', 'backlog.exe'),
+			path.join(process.env.PROGRAMFILES || '', 'nodejs', 'backlog'),
 			'C:\\Program Files\\nodejs\\backlog.cmd',
-			'C:\\Program Files\\nodejs\\backlog.exe'
+			'C:\\Program Files\\nodejs\\backlog.exe',
+			'C:\\Program Files\\nodejs\\backlog'
 		];
 		
 		for (const candidatePath of commonPaths) {

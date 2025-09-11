@@ -168,14 +168,15 @@ async function runBacklogCommand(args: string[]): Promise<string> {
     const backlogPath = await getBacklogCliPath();
 
     return new Promise((resolve, reject) => {
-      // On Windows, if the path ends with .cmd, we need to use shell
+      // On Windows, always use shell to handle paths with spaces correctly
       const isWindows = process.platform === 'win32';
-      const needsShell = isWindows && (backlogPath.endsWith('.cmd') || backlogPath.endsWith('.bat'));
+      const needsShell = isWindows; // Always use shell on Windows for robust path handling
       
       const child = spawn(backlogPath, escapedArgs, {
-        shell: needsShell, // Use shell for .cmd/.bat files on Windows
+        shell: needsShell, // Use shell on Windows to handle spaces and batch files
         cwd: projectDir, // Run command in project directory
         env: { ...process.env },
+        windowsHide: true, // Prevent popup windows on Windows
       });
 
       let stdout = "";
