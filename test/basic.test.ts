@@ -45,15 +45,15 @@ describe('Consolidated Project Tests', () => {
 		});
 	});
 	
-	describe('NPM Package Structure', () => {
-		test('npm directory should exist', async () => {
-			const npmDir = path.join(__dirname, '..', 'npm');
-			const result = await fs.access(npmDir).then(() => true).catch(() => false);
+	describe('Package Documentation Structure', () => {
+		test('user README should exist in root', async () => {
+			const readmePath = path.join(__dirname, '..', 'README');
+			const result = await fs.access(readmePath).then(() => true).catch(() => false);
 			expect(result).toBe(true);
 		});
 		
-		test('npm README should exist', async () => {
-			const readmePath = path.join(__dirname, '..', 'npm', 'README.md');
+		test('developer README.md should exist', async () => {
+			const readmePath = path.join(__dirname, '..', 'README.md');
 			const result = await fs.access(readmePath).then(() => true).catch(() => false);
 			expect(result).toBe(true);
 		});

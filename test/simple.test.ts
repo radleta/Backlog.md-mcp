@@ -38,11 +38,6 @@ describe('Consolidated Project Tests', () => {
 		expect(stats.isDirectory()).toBe(true);
 	});
 	
-	test('npm directory exists', async () => {
-		const npmDir = path.join(__dirname, '..', 'npm');
-		const stats = await fs.stat(npmDir);
-		expect(stats.isDirectory()).toBe(true);
-	});
 	
 	test('dist directory with compiled files exists after build', async () => {
 		const distDir = path.join(__dirname, '..', 'dist');
