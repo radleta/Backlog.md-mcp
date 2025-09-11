@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+- Reorganized documentation structure for better maintainability
+  - Moved developer documentation to root README.md for GitHub contributors
+  - Streamlined package README.md for npm users and end-user experience
+  - Removed build instructions from package documentation (now in root README.md)
+- Improved package README.md with table of contents and better navigation
+- Enhanced tool parameter documentation coverage
+- Consolidated and reorganized feature sections for clarity
+
+### Fixed
+- Corrected GitHub repository URLs from incorrect lowercase to proper capitalization
+
+### Changed
+- Updated CLAUDE.md references to reflect new documentation structure
+
+### Chore
+- Completed npm publishing milestone (task-008) and archived related tasks
+
 ## [0.1.0] - 2025-09-11
 
 ### Security
