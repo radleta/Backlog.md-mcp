@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2025-09-11
+
 ### Security
 - Added comprehensive security measures to prevent command injection, path traversal, and prototype pollution attacks
 - Implemented input validation and sanitization for all user inputs
