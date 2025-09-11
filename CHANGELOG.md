@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-09-11
+
 ### Changed
 - **BREAKING**: Consolidated project structure into single root package
   - Merged source/ and package/ directories into unified root structure  
