@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import * as path from 'path';
 
 describe('CLI Integration Tests', () => {
-	const cliPath = path.join(__dirname, '..', '..', 'package', 'bin', 'backlog-mcp');
+	const cliPath = path.join(__dirname, '..', 'bin', 'backlog-mcp.js');
 	
 	describe('CLI Executable', () => {
 		test('CLI script should exist', async () => {

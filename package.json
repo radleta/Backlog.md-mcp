@@ -2,6 +2,7 @@
 	"name": "@radleta/backlog-md-mcp",
 	"version": "0.1.0",
 	"type": "module",
+	"private": false,
 	"description": "MCP (Model Context Protocol) server for Backlog.md task management - integrate Backlog.md with Claude Code",
 	"keywords": [
 		"mcp",
@@ -31,21 +32,34 @@
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"bin": {
-		"backlog-mcp": "bin/backlog-mcp",
-		"backlog-mcp-dev": "bin/backlog-mcp-dev"
+		"backlog-mcp": "./bin/backlog-mcp.js",
+		"backlog-mcp-dev": "./bin/backlog-mcp-dev.js"
 	},
 	"files": [
 		"dist/",
 		"bin/",
-		"README.md",
-		"INSTALL.md",
+		"npm/README.md",
 		"CHANGELOG.md",
 		"LICENSE"
 	],
 	"scripts": {
+		"build": "tsc && npm run copy-package-files",
+		"build:watch": "tsc --watch",
+		"copy-package-files": "node ./scripts/copy-files.js",
 		"start": "node dist/server.js",
-		"prepublishOnly": "cd ../source && npm run validate && npm run build",
-		"version": "node ../source/scripts/update-changelog.js $npm_package_version && git add CHANGELOG.md",
+		"test": "bun test test/*.test.ts",
+		"test:watch": "bun test --watch test/*.test.ts",
+		"test:coverage": "bun test --coverage test/*.test.ts",
+		"lint": "eslint src/ --ext .ts",
+		"lint:fix": "eslint src/ --ext .ts --fix",
+		"format": "prettier --write 'src/**/*.ts' 'test/**/*.ts'",
+		"format:check": "prettier --check 'src/**/*.ts' 'test/**/*.ts'",
+		"typecheck": "tsc --noEmit",
+		"clean": "rm -rf dist",
+		"prebuild": "npm run clean",
+		"validate": "npm run lint && npm run typecheck && npm run test",
+		"prepublishOnly": "npm run validate && npm run build",
+		"version": "node scripts/update-changelog.js $npm_package_version && git add CHANGELOG.md",
 		"postversion": "git push && git push --tags",
 		"pack:dry": "npm pack --dry-run",
 		"size:check": "npm pack --dry-run 2>&1 | grep 'package size' | head -1",
@@ -58,6 +72,18 @@
 		"commander": "^12.0.0",
 		"inquirer": "^8.2.6",
 		"ora": "^5.4.1"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/inquirer": "^9.0.0",
+		"@types/node": "^20.0.0",
+		"@typescript-eslint/eslint-plugin": "^6.0.0",
+		"@typescript-eslint/parser": "^6.0.0",
+		"eslint": "^8.0.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-security": "^1.7.0",
+		"prettier": "^3.0.0",
+		"typescript": "^5.0.0"
 	},
 	"engines": {
 		"node": ">=18.0.0"

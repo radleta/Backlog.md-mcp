@@ -4,9 +4,7 @@ yarn.lock
 pnpm-lock.yaml
 
 # Build outputs
-package/dist/
-package/node_modules/
-source/node_modules/
+dist/
 *.tsbuildinfo
 
 # Test coverage
@@ -38,22 +36,8 @@ bun-error.log*
 tmp/
 temp/
 *.tmp
+test-editor-*
 
 # OS files
 Thumbs.db
 Desktop.ini
-
-# Old structure (to be cleaned up)
-/src/node_modules/
-/src/bun.lock
-/src/package.json
-/bin/
-/scripts/
-/test/
-/dist/
-/package.json
-/tsconfig.json
-/tsconfig.build.json
-/.eslintrc.json
-/.prettierrc.json
-/bunfig.toml

@@ -7,36 +7,28 @@ set -e
 
 echo "🏗️  Building Backlog.md MCP Server..."
 
-# Step 1: Install dependencies in source
-echo "📦 Installing build dependencies..."
-cd source
+# Step 1: Install dependencies
+echo "📦 Installing dependencies..."
 npm install
 
-# Step 2: Build TypeScript first
+# Step 2: Build TypeScript
 echo "🔨 Compiling TypeScript..."
 npm run build
 
-# Step 3: Install runtime dependencies in package
-echo "📦 Installing runtime dependencies..."
-cd ../package
-npm install --production
-
-# Step 4: Run tests against built code (after package is fully assembled)
+# Step 3: Run tests against built code
 echo "🧪 Running tests..."
-cd ../source
 npm test
 
-# Step 5: Lint and type check
+# Step 4: Lint and type check
 echo "✨ Linting and type checking..."
 npm run lint || true
 npm run typecheck || true
 
-# Step 6: Verify the build
+# Step 5: Verify the build
 echo "✅ Verifying build..."
-cd ../package
 if [ -f "dist/cli.js" ] && [ -f "dist/server.js" ] && [ -f "dist/index.js" ]; then
     echo "✨ Build successful!"
-    echo "📁 Distribution package ready in: package/"
+    echo "📁 Distribution ready in: dist/"
     echo ""
     echo "Development workflow:"
     echo "  ./dev.sh validate                    # Test development version"
@@ -44,13 +36,13 @@ if [ -f "dist/cli.js" ] && [ -f "dist/server.js" ] && [ -f "dist/index.js" ]; th
     echo "  ./test-mcp.sh                        # Full integration test"
     echo ""
     echo "Production installation:"
-    echo "  cd package && npm install -g .      # Install for daily use"
+    echo "  npm install -g .                     # Install for daily use"
     echo "  backlog-mcp validate                 # Verify installation"
     echo ""
     echo "To publish:"
-    echo "  cd package && npm run release        # Verify readiness"
-    echo "  cd package && npm version [patch|minor|major]  # Auto-update changelog & push"
-    echo "  cd package && npm publish            # Auto-validate & publish"
+    echo "  npm run release                      # Verify readiness"
+    echo "  npm version [patch|minor|major]     # Auto-update changelog & push"
+    echo "  npm publish                          # Auto-validate & publish"
 else
     echo "❌ Build failed - missing expected files"
     exit 1

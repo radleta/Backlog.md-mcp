@@ -7,23 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Documentation
-- Reorganized documentation structure for better maintainability
-  - Moved developer documentation to root README.md for GitHub contributors
-  - Streamlined package README.md for npm users and end-user experience
-  - Removed build instructions from package documentation (now in root README.md)
-- Improved package README.md with table of contents and better navigation
-- Enhanced tool parameter documentation coverage
-- Consolidated and reorganized feature sections for clarity
-
-### Fixed
-- Corrected GitHub repository URLs from incorrect lowercase to proper capitalization
-
 ### Changed
-- Updated CLAUDE.md references to reflect new documentation structure
+- **BREAKING**: Consolidated project structure into single root package
+  - Merged source/ and package/ directories into unified root structure  
+  - Moved TypeScript source files from source/src/ to src/
+  - Moved tests from source/test/ to test/
+  - Moved build scripts to root scripts/ directory
+  - Updated all build and development workflows for new structure
+  - Created npm/ directory for package-specific documentation (npm/README.md)
+- Updated all path references in documentation and scripts
+- Unified package.json with merged dependencies and updated paths
+- Updated TypeScript configuration for new directory structure
 
-### Chore
-- Completed npm publishing milestone (task-008) and archived related tasks
+### Fixed  
+- Fixed test configuration to exclude Backlog.md submodule tests
+- Updated all shell scripts (build.sh, dev.sh, test-mcp.sh) for new paths
+- Corrected bin script paths in package.json and development workflows
+- Fixed all documentation path references from old structure
+
+### Documentation
+- Updated README.md project structure diagram and all path references
+- Updated CLAUDE.md to reference npm/README.md instead of package/README.md
+- Maintained separation between developer docs (root README.md) and user docs (npm/README.md)
+- Fixed all command examples and development workflow instructions
+
+### Tested
+- Verified all 88 tests pass with new structure
+- Completed comprehensive smoke test of MCP functionality
+- Confirmed all tools work correctly after consolidation
+- Validated build, lint, and typecheck processes
 
 ## [0.1.0] - 2025-09-11
 

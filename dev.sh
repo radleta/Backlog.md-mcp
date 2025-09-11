@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Get the directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-DEV_BIN="$SCRIPT_DIR/package/bin/backlog-mcp-dev"
+DEV_BIN="$SCRIPT_DIR/bin/backlog-mcp-dev.js"
 
 echo -e "${BLUE}🧪 Backlog.md MCP Server - Development Mode${NC}"
 echo -e "${YELLOW}Using: $DEV_BIN${NC}"

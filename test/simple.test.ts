@@ -31,27 +31,21 @@ describe('Simple Structure Tests', () => {
 	});
 });
 
-describe('Package Directory Tests', () => {
-	test('package directory exists', async () => {
-		const packageDir = path.join(__dirname, '..', '..', 'package');
-		const stats = await fs.stat(packageDir);
-		expect(stats.isDirectory()).toBe(true);
-	});
-	
-	test('package has package.json', async () => {
-		const packagePath = path.join(__dirname, '..', '..', 'package', 'package.json');
-		const exists = await fs.access(packagePath).then(() => true).catch(() => false);
-		expect(exists).toBe(true);
-	});
-	
-	test('package has bin directory', async () => {
-		const binDir = path.join(__dirname, '..', '..', 'package', 'bin');
+describe('Consolidated Project Tests', () => {
+	test('bin directory exists', async () => {
+		const binDir = path.join(__dirname, '..', 'bin');
 		const stats = await fs.stat(binDir);
 		expect(stats.isDirectory()).toBe(true);
 	});
 	
-	test('package has dist directory with compiled files', async () => {
-		const distDir = path.join(__dirname, '..', '..', 'package', 'dist');
+	test('npm directory exists', async () => {
+		const npmDir = path.join(__dirname, '..', 'npm');
+		const stats = await fs.stat(npmDir);
+		expect(stats.isDirectory()).toBe(true);
+	});
+	
+	test('dist directory with compiled files exists after build', async () => {
+		const distDir = path.join(__dirname, '..', 'dist');
 		const exists = await fs.access(distDir).then(() => true).catch(() => false);
 		expect(exists).toBe(true);
 		

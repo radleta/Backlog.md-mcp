@@ -3,11 +3,11 @@
 ## Documentation Organization
 
 @README.md
-@package/README.md
+@npm/README.md
 
 **Important**: The documentation above is organized by audience:
 - **README.md** - For developers contributing to the MCP server codebase (includes development setup, testing, and architecture)
-- **package/README.md** - For users installing and using the MCP server
+- **npm/README.md** - For users installing and using the MCP server
 - **CLAUDE.md** (this section) - Claude-specific context and guidance
 
 ## Claude-Specific Context
@@ -48,4 +48,4 @@ Most operations are direct CLI pass-through for data integrity.
 2. All security measures preserve user content (escape, don't remove)
 3. Interactive commands (like `backlog init`) cannot be implemented through MCP
 4. For Claude Code setup, users should use: `claude mcp add backlog-md -- backlog-mcp start`
-5. Development documentation is now in the root README.md, user documentation is in package/README.md
+5. Development documentation is now in the root README.md, user documentation is in npm/README.md

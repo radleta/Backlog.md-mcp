@@ -2,15 +2,15 @@ import { describe, test, expect } from 'bun:test';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-describe('Source Project Tests', () => {
-	describe('Source Structure', () => {
-		test('source package.json should be valid', async () => {
+describe('Consolidated Project Tests', () => {
+	describe('Project Structure', () => {
+		test('root package.json should be valid', async () => {
 			const packagePath = path.join(__dirname, '..', 'package.json');
 			const content = await fs.readFile(packagePath, 'utf-8');
 			const pkg = JSON.parse(content);
 			
-			expect(pkg.name).toBe('backlog-mcp-source');
-			expect(pkg.private).toBe(true);
+			expect(pkg.name).toBe('@radleta/backlog-md-mcp');
+			expect(pkg.private).toBe(false);
 			expect(pkg.version).toBeTruthy();
 			expect(pkg.scripts).toHaveProperty('build');
 			expect(pkg.scripts).toHaveProperty('test');
@@ -40,52 +40,52 @@ describe('Source Project Tests', () => {
 			const tsconfig = JSON.parse(content);
 			
 			expect(tsconfig.compilerOptions).toBeTruthy();
-			expect(tsconfig.compilerOptions.outDir).toBe('../package/dist');
+			expect(tsconfig.compilerOptions.outDir).toBe('./dist');
 			expect(tsconfig.compilerOptions.strict).toBe(true);
 		});
 	});
 	
-	describe('Package Structure', () => {
-		test('package directory should exist', async () => {
-			const packageDir = path.join(__dirname, '..', '..', 'package');
-			const result = await fs.access(packageDir).then(() => true).catch(() => false);
+	describe('NPM Package Structure', () => {
+		test('npm directory should exist', async () => {
+			const npmDir = path.join(__dirname, '..', 'npm');
+			const result = await fs.access(npmDir).then(() => true).catch(() => false);
 			expect(result).toBe(true);
 		});
 		
-		test('package/package.json should be valid', async () => {
-			const packagePath = path.join(__dirname, '..', '..', 'package', 'package.json');
-			const content = await fs.readFile(packagePath, 'utf-8');
-			const pkg = JSON.parse(content);
-			
-			expect(pkg.name).toBe('@radleta/backlog-md-mcp');
-			expect(pkg.main).toBe('dist/index.js');
-			expect(pkg.bin).toHaveProperty('backlog-mcp');
-			expect(pkg.version).toBeTruthy();
+		test('npm README should exist', async () => {
+			const readmePath = path.join(__dirname, '..', 'npm', 'README.md');
+			const result = await fs.access(readmePath).then(() => true).catch(() => false);
+			expect(result).toBe(true);
 		});
 		
-		test('package bin script should exist', async () => {
-			const binPath = path.join(__dirname, '..', '..', 'package', 'bin', 'backlog-mcp');
-			const result = await fs.access(binPath).then(() => true).catch(() => false);
-			expect(result).toBe(true);
+		test('bin scripts should exist', async () => {
+			const binFiles = [
+				'backlog-mcp.js',
+				'backlog-mcp-dev.js'
+			];
 			
-			// Check it's executable
-			const stats = await fs.stat(binPath);
-			// On Unix-like systems, check if executable bit is set
-			if (process.platform !== 'win32') {
-				expect(stats.mode & 0o111).toBeGreaterThan(0);
+			for (const binFile of binFiles) {
+				const binPath = path.join(__dirname, '..', 'bin', binFile);
+				const result = await fs.access(binPath).then(() => true).catch(() => false);
+				expect(result).toBe(true);
+				
+				// Check it's executable
+				const stats = await fs.stat(binPath);
+				if (process.platform !== 'win32') {
+					expect(stats.mode & 0o111).toBeGreaterThan(0);
+				}
 			}
 		});
 		
-		test('package documentation should exist', async () => {
+		test('project documentation should exist', async () => {
 			const docs = [
 				'README.md',
-				'LICENSE',
-				'CHANGELOG.md',
-				'INSTALL.md'
+				'CLAUDE.md',
+				'CHANGELOG.md'
 			];
 			
 			for (const doc of docs) {
-				const docPath = path.join(__dirname, '..', '..', 'package', doc);
+				const docPath = path.join(__dirname, '..', doc);
 				const result = await fs.access(docPath).then(() => true).catch(() => false);
 				expect(result).toBe(true);
 			}
@@ -94,7 +94,7 @@ describe('Source Project Tests', () => {
 	
 	describe('Build Output', () => {
 		test('dist directory should exist after build', async () => {
-			const distDir = path.join(__dirname, '..', '..', 'package', 'dist');
+			const distDir = path.join(__dirname, '..', 'dist');
 			const result = await fs.access(distDir).then(() => true).catch(() => false);
 			expect(result).toBe(true);
 		});
@@ -108,7 +108,7 @@ describe('Source Project Tests', () => {
 			];
 			
 			for (const file of compiledFiles) {
-				const filePath = path.join(__dirname, '..', '..', 'package', 'dist', file);
+				const filePath = path.join(__dirname, '..', 'dist', file);
 				const result = await fs.access(filePath).then(() => true).catch(() => false);
 				expect(result).toBe(true);
 			}
@@ -123,7 +123,7 @@ describe('Source Project Tests', () => {
 			];
 			
 			for (const file of typeFiles) {
-				const filePath = path.join(__dirname, '..', '..', 'package', 'dist', file);
+				const filePath = path.join(__dirname, '..', 'dist', file);
 				const result = await fs.access(filePath).then(() => true).catch(() => false);
 				expect(result).toBe(true);
 			}
@@ -141,7 +141,7 @@ describe('Source Project Tests', () => {
 		});
 		
 		test('package should have runtime dependencies', async () => {
-			const packagePath = path.join(__dirname, '..', '..', 'package', 'package.json');
+			const packagePath = path.join(__dirname, '..', 'package.json');
 			const content = await fs.readFile(packagePath, 'utf-8');
 			const pkg = JSON.parse(content);
 			

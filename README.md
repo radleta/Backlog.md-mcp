@@ -34,21 +34,24 @@ The Backlog.md MCP Server is designed as a complete wrapper around the [Backlog.
 
 ```
 Backlog.md-mcp/
-├── source/                 # Development source code
-│   ├── src/               # TypeScript source files
-│   │   ├── server.ts      # MCP server implementation
-│   │   ├── cli.ts         # CLI implementation
-│   │   ├── config.ts      # Configuration management
-│   │   └── setup.ts       # Interactive setup wizard
-│   ├── test/              # Test files
-│   ├── package.json       # Development dependencies
-│   └── tsconfig.json      # TypeScript configuration
-├── package/               # Distribution package (generated)
-│   ├── dist/              # Compiled JavaScript
-│   ├── bin/               # Executable scripts
-│   ├── package.json       # Runtime dependencies
-│   └── README.md          # Package documentation
+├── src/                    # TypeScript source files
+│   ├── server.ts          # MCP server implementation
+│   ├── cli.ts             # CLI implementation
+│   ├── config.ts          # Configuration management
+│   └── setup.ts           # Interactive setup wizard
+├── test/                   # Test files
+├── dist/                   # Compiled JavaScript
+├── bin/                    # Executable scripts
+│   ├── backlog-mcp.js     # Production wrapper
+│   └── backlog-mcp-dev.js # Development wrapper
+├── scripts/                # Build utilities
+├── npm/                    # NPM package-specific files
+│   └── README.md          # User documentation
 ├── Backlog.md/            # Git submodule (official Backlog.md)
+├── package.json           # Unified configuration
+├── tsconfig.json          # TypeScript configuration
+├── README.md              # Developer documentation
+├── CLAUDE.md              # Claude-specific instructions
 ├── build.sh               # Build script
 ├── dev.sh                 # Development convenience script
 └── test-mcp.sh            # Integration test script
@@ -193,7 +196,7 @@ The project uses a **dual-environment approach** to separate development from pr
 ### Quick Start
 
 ```bash
-# Make changes in source/src/
+# Make changes in src/
 # Test your changes
 ./dev.sh validate
 
@@ -205,7 +208,7 @@ The project uses a **dual-environment approach** to separate development from pr
 
 | Aspect | Development | Production |
 |--------|-------------|------------|
-| **Command** | `./dev.sh` or `node package/bin/backlog-mcp-dev` | `backlog-mcp` |
+| **Command** | `./dev.sh` or `node bin/backlog-mcp-dev.js` | `backlog-mcp` |
 | **Config Directory** | `~/.config/backlog-mcp-dev` | `~/.config/backlog-mcp` |
 | **Environment Variable** | `BACKLOG_ENV=development` | `BACKLOG_ENV=production` |
 | **Installation Method** | Direct execution | Global npm package |
@@ -222,13 +225,12 @@ The project uses a **dual-environment approach** to separate development from pr
 
 #### Direct Path Execution
 ```bash
-node package/bin/backlog-mcp-dev validate
-node package/bin/backlog-mcp-dev start
+node bin/backlog-mcp-dev.js validate
+node bin/backlog-mcp-dev.js start
 ```
 
 #### Production Installation (for stable use)
 ```bash
-cd package
 npm install -g .
 backlog-mcp validate
 ```
@@ -237,17 +239,16 @@ backlog-mcp validate
 
 | Aspect | Development | Production |
 |--------|------------|------------|
-| **Command** | `./dev.sh` or `node package/bin/backlog-mcp-dev` | `backlog-mcp` |
+| **Command** | `./dev.sh` or `node bin/backlog-mcp-dev.js` | `backlog-mcp` |
 | **Config Dir** | `~/.config/backlog-mcp-dev` | `~/.config/backlog-mcp` |
 | **Environment** | `BACKLOG_ENV=development` | `BACKLOG_ENV=production` |
 | **Installation** | Direct execution | Global npm package |
-| **Claude Code** | `node /path/to/package/bin/backlog-mcp-dev start` | `backlog-mcp start` |
+| **Claude Code** | `node /path/to/bin/backlog-mcp-dev.js start` | `backlog-mcp start` |
 
 ## Testing
 
 ### Unit Tests
 ```bash
-cd source
 npm test                            # Run unit tests
 npm run test:watch                  # Watch mode
 npm run test:coverage               # Coverage report
@@ -260,7 +261,6 @@ npm run test:coverage               # Coverage report
 
 ### Linting and Type Checking
 ```bash
-cd source
 npm run lint                        # ESLint
 npm run lint:fix                    # Auto-fix issues
 npm run typecheck                   # TypeScript check
@@ -289,14 +289,14 @@ npm run format                      # Prettier formatting
 #### Add Development Version
 ```bash
 # Replace /absolute/path/to with your actual path
-claude mcp add backlog-md-dev -- node /absolute/path/to/Backlog.md-mcp/package/bin/backlog-mcp-dev start
+claude mcp add backlog-md-dev -- node /absolute/path/to/Backlog.md-mcp/bin/backlog-mcp-dev.js start
 ```
 
 #### Switch Between Versions
 ```bash
 # Use development version
 claude mcp remove backlog-md
-claude mcp add backlog-md-dev -- node /path/to/package/bin/backlog-mcp-dev start
+claude mcp add backlog-md-dev -- node /path/to/bin/backlog-mcp-dev.js start
 
 # Switch back to production
 claude mcp remove backlog-md-dev
@@ -384,17 +384,17 @@ const configDir = process.env.BACKLOG_CONFIG_DIR || getDefaultConfigDir();
 #### Build Failures
 ```bash
 # Clean build
-rm -rf package/dist/
+rm -rf dist/
 ./build.sh
 ```
 
 #### Test Failures
 ```bash
 # Check TypeScript compilation
-cd source && npm run typecheck
+npm run typecheck
 
 # Run specific test
-cd source && npm test -- --grep "specific test"
+npm test -- --grep "specific test"
 ```
 
 #### Environment Issues
@@ -437,7 +437,7 @@ tail -f ~/.config/backlog-mcp-dev/logs/server.log
 
 1. **Fork and clone** the repository
 2. **Create a feature branch**: `git checkout -b feature/your-feature`
-3. **Make changes** in `source/src/`
+3. **Make changes** in `src/`
 4. **Test your changes**: `./test-mcp.sh`
 5. **Commit changes**: Follow conventional commit format
 6. **Push and create PR**
@@ -468,13 +468,11 @@ The release process is now fully automated using npm lifecycle scripts:
 
 #### 1. Pre-Release Validation
 ```bash
-cd package
 npm run release  # Check package size, files, and readiness
 ```
 
 #### 2. Version Bump and Release
 ```bash
-cd package
 npm version [patch|minor|major]  # Automatically:
                                   # - Updates package version
                                   # - Updates CHANGELOG.md 
@@ -499,7 +497,7 @@ npm publish  # Automatically runs tests and validation before publishing
 
 #### 4. Manual Steps (Legacy Reference)
 If you need to bypass automation:
-1. Manually update version in `package/package.json`
+1. Manually update version in `package.json`
 2. Manually update `CHANGELOG.md`
 3. Create git tag: `git tag v1.x.x && git push --tags`
 4. Build and publish: `npm publish`
@@ -533,7 +531,7 @@ For the complete enhancement matrix showing which features are implemented how, 
 
 ### MCP Server Implementation
 
-The server (`source/src/server.ts`) implements:
+The server (`src/server.ts`) implements:
 - **Tool handlers** for Backlog.md CLI commands
 - **Resource providers** for read-only data access
 - **Error handling** and validation
@@ -546,7 +544,7 @@ The server (`source/src/server.ts`) implements:
 
 ### CLI Wrapper
 
-The CLI (`source/src/cli.ts`) provides:
+The CLI (`src/cli.ts`) provides:
 - **Command parsing** with Commander.js
 - **Configuration management**
 - **Validation and setup** tools
@@ -554,7 +552,7 @@ The CLI (`source/src/cli.ts`) provides:
 
 ### Configuration System
 
-The config module (`source/src/config.ts`) handles:
+The config module (`src/config.ts`) handles:
 - **Environment-specific** config directories
 - **JSON configuration** persistence
 - **Path resolution** for Backlog.md CLI

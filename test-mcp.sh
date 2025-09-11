@@ -39,7 +39,7 @@ fi
 # Step 3: Test server can import and initialize
 echo -e "${YELLOW}Step 3: Testing server initialization...${NC}"
 if timeout 3s node -e "
-import('$SCRIPT_DIR/package/dist/server.js')
+import('$SCRIPT_DIR/dist/server.js')
   .then(() => console.log('Server module loaded successfully'))
   .catch(e => { console.error('Server failed to load:', e.message); process.exit(1); })
 " > /tmp/server.log 2>&1; then
@@ -57,8 +57,8 @@ echo ""
 echo -e "${BLUE}Usage Instructions:${NC}"
 echo -e "  ${YELLOW}Development:${NC}     ./dev.sh validate"
 echo -e "  ${YELLOW}Start Server:${NC}    ./dev.sh start"
-echo -e "  ${YELLOW}With Claude:${NC}     claude mcp add backlog-md-dev -- node $SCRIPT_DIR/package/bin/backlog-mcp-dev start"
+echo -e "  ${YELLOW}With Claude:${NC}     claude mcp add backlog-md-dev -- node $SCRIPT_DIR/bin/backlog-mcp-dev.js start"
 echo ""
 echo -e "${BLUE}Install for Production Use:${NC}"
-echo -e "  cd package && npm install -g ."
+echo -e "  npm install -g ."
 echo -e "  claude mcp add backlog-md -- backlog-mcp start"

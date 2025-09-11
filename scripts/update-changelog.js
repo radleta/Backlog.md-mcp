@@ -7,7 +7,7 @@
 
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { updateChangelog, parseVersionArgument, isValidVersion } from '../../package/dist/changelog-updater.js';
+import { updateChangelog, parseVersionArgument, isValidVersion } from '../dist/changelog-updater.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -29,7 +29,7 @@ function main() {
   }
 
   // Update the changelog
-  const changelogPath = join(__dirname, '../../package/CHANGELOG.md');
+  const changelogPath = join(__dirname, '../CHANGELOG.md');
   const result = updateChangelog({
     changelogPath,
     version,
