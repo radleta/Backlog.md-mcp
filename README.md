@@ -379,6 +379,43 @@ const configDir = process.env.BACKLOG_CONFIG_DIR || getDefaultConfigDir();
 
 ## Troubleshooting
 
+### Windows PowerShell Issues
+
+#### MCP Server Fails with ENOENT Error
+**Problem**: MCP functions fail with `spawn ... ENOENT` error when Claude Code is launched from PowerShell.
+
+**Solution**: 
+1. **Automatic Detection (v0.1.5+)**: The MCP server now automatically detects the backlog CLI path across different environments.
+
+2. **Manual Configuration** (if auto-detection fails):
+   ```bash
+   # Find your backlog installation
+   where backlog
+
+   # Configure the path (use the .cmd version on Windows)  
+   backlog-mcp config set backlogCliPath "C:\Program Files\nodejs\backlog.cmd"
+   
+   # Verify the configuration
+   backlog-mcp validate
+   ```
+
+3. **Path Detection Diagnosis**:
+   ```bash
+   # See what paths are being detected
+   backlog-mcp detect
+   ```
+
+**Why this happens**: PowerShell and Git Bash handle executable resolution differently. The MCP server now tries multiple detection strategies:
+- System `where`/`which` command
+- npm global installation paths
+- Common Windows installation locations
+- Local bundled version
+
+#### Workaround for Legacy Versions
+If using an older version of the MCP server:
+1. Launch Claude Code from Git Bash instead of PowerShell
+2. Or manually configure the path as shown above
+
 ### Common Development Issues
 
 #### Build Failures

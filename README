@@ -223,6 +223,32 @@ Once configured, you can use natural language in Claude:
 
 ## Troubleshooting
 
+### Windows PowerShell Issues
+
+#### MCP Server Fails with ENOENT Error
+**Problem**: MCP functions fail with `spawn ... ENOENT` error when Claude Code is launched from PowerShell.
+
+**Solution**: 
+1. **Automatic Detection (v0.1.5+)**: The MCP server now automatically detects the backlog CLI path across different environments.
+
+2. **Manual Configuration** (if auto-detection fails):
+   ```bash
+   # Find your backlog installation
+   where backlog
+
+   # Configure the path (use the .cmd version on Windows)  
+   backlog-mcp config set backlogCliPath "C:\Program Files\nodejs\backlog.cmd"
+   
+   # Verify the configuration
+   backlog-mcp validate
+   ```
+
+3. **Path Detection Diagnosis**:
+   ```bash
+   # See what paths are being detected
+   backlog-mcp detect
+   ```
+
 ### Server Not Connecting
 - Ensure `backlog-mcp` is in your PATH
 - Run `backlog-mcp validate` to check setup
@@ -241,6 +267,7 @@ Once configured, you can use natural language in Claude:
 ### Debugging
 - Use verbose mode: `backlog-mcp start --verbose`
 - Run `backlog-mcp info` to see server capabilities
+- Use `backlog-mcp detect` to diagnose path resolution issues
 
 ## Contributing
 

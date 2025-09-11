@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
 import { existsSync } from 'fs';
+import { execSync } from 'child_process';
 
 /**
  * Get the configuration directory path based on environment
@@ -69,26 +70,124 @@ export async function getAll(): Promise<any> {
 }
 
 /**
+ * Find the backlog executable using multiple strategies
+ */
+async function findBacklogExecutable(): Promise<string | null> {
+	const isWindows = process.platform === 'win32';
+	
+	// Strategy 1: Use system command to locate executable
+	try {
+		const command = isWindows ? 'where' : 'which';
+		const executable = isWindows ? 'backlog' : 'backlog';
+		
+		const result = execSync(`${command} ${executable}`, { 
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'ignore'] // Suppress stderr
+		});
+		
+		// Return first match (where/which may return multiple lines)
+		const firstMatch = result.trim().split('\n')[0];
+		if (firstMatch && existsSync(firstMatch)) {
+			return firstMatch;
+		}
+	} catch {
+		// Continue to next strategy
+	}
+	
+	// Strategy 2: Check npm global installation
+	try {
+		const npmRoot = execSync('npm root -g', { 
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'ignore']
+		}).trim();
+		
+		const candidates = isWindows 
+			? [
+				path.join(npmRoot, '.bin', 'backlog.cmd'),
+				path.join(npmRoot, '.bin', 'backlog.exe'),
+				path.join(npmRoot, '..', 'backlog.cmd'),
+				path.join(npmRoot, '..', 'backlog.exe')
+			]
+			: [
+				path.join(npmRoot, '.bin', 'backlog')
+			];
+		
+		for (const candidate of candidates) {
+			if (existsSync(candidate)) {
+				return candidate;
+			}
+		}
+	} catch {
+		// Continue to next strategy
+	}
+	
+	// Strategy 3: Check common Windows installation locations
+	if (isWindows) {
+		const commonPaths = [
+			path.join(process.env.APPDATA || '', 'npm', 'backlog.cmd'),
+			path.join(process.env.APPDATA || '', 'npm', 'backlog.exe'),
+			path.join(process.env.PROGRAMFILES || '', 'nodejs', 'backlog.cmd'),
+			path.join(process.env.PROGRAMFILES || '', 'nodejs', 'backlog.exe'),
+			'C:\\Program Files\\nodejs\\backlog.cmd',
+			'C:\\Program Files\\nodejs\\backlog.exe'
+		];
+		
+		for (const candidatePath of commonPaths) {
+			if (existsSync(candidatePath)) {
+				return candidatePath;
+			}
+		}
+	}
+	
+	// Strategy 4: Check local node_modules (bundled version)
+	try {
+		const __dirname = path.dirname(fileURLToPath(import.meta.url));
+		const candidates = isWindows 
+			? [
+				path.join(__dirname, '..', 'node_modules', '.bin', 'backlog.cmd'),
+				path.join(__dirname, '..', 'node_modules', '.bin', 'backlog.exe')
+			]
+			: [
+				path.join(__dirname, '..', 'node_modules', '.bin', 'backlog')
+			];
+		
+		for (const candidate of candidates) {
+			if (existsSync(candidate)) {
+				return candidate;
+			}
+		}
+	} catch {
+		// Continue to fallback
+	}
+	
+	return null;
+}
+
+/**
  * Get the path to the Backlog.md CLI
  */
 export async function getBacklogCliPath(): Promise<string> {
 	// First, check if there's a custom path in config
 	const customPath = await get('backlogCliPath');
 	if (customPath) {
-		return customPath;
+		// Verify the custom path exists
+		if (existsSync(customPath)) {
+			return customPath;
+		} else {
+			// Custom path is invalid, continue with detection
+			console.warn(`Configured backlog CLI path "${customPath}" does not exist, attempting to auto-detect...`);
+		}
 	}
 	
-	// Try to find the bundled version
-	try {
-		// ES module workaround for __dirname
-		const __dirname = path.dirname(fileURLToPath(import.meta.url));
-		const bundledPath = path.join(__dirname, '..', 'node_modules', '.bin', 'backlog');
-		await fs.access(bundledPath);
-		return bundledPath;
-	} catch {
-		// Fall back to global installation
-		return 'backlog';
+	// Use cross-platform detection
+	const detectedPath = await findBacklogExecutable();
+	if (detectedPath) {
+		return detectedPath;
 	}
+	
+	// Final fallback - try simple command name and let system PATH handle it
+	const isWindows = process.platform === 'win32';
+	return isWindows ? 'backlog.cmd' : 'backlog';
 }
 
 /**

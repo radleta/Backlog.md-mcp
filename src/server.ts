@@ -168,8 +168,12 @@ async function runBacklogCommand(args: string[]): Promise<string> {
     const backlogPath = await getBacklogCliPath();
 
     return new Promise((resolve, reject) => {
+      // On Windows, if the path ends with .cmd, we need to use shell
+      const isWindows = process.platform === 'win32';
+      const needsShell = isWindows && (backlogPath.endsWith('.cmd') || backlogPath.endsWith('.bat'));
+      
       const child = spawn(backlogPath, escapedArgs, {
-        shell: false, // Don't use shell to avoid argument parsing issues
+        shell: needsShell, // Use shell for .cmd/.bat files on Windows
         cwd: projectDir, // Run command in project directory
         env: { ...process.env },
       });
@@ -186,7 +190,15 @@ async function runBacklogCommand(args: string[]): Promise<string> {
       });
 
       child.on("error", (error) => {
-        reject(new Error(`Command failed: ${error.message}`));
+        if (error.message.includes('ENOENT')) {
+          reject(new Error(
+            `Backlog CLI not found at: ${backlogPath}\n` +
+            `Please ensure backlog.md is installed or configure the path using:\n` +
+            `backlog-mcp config set backlogCliPath "/path/to/backlog"`
+          ));
+        } else {
+          reject(new Error(`Command failed: ${error.message}`));
+        }
       });
 
       child.on("exit", (code) => {

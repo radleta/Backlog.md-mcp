@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Cross-platform path resolution for backlog CLI executable
+  - Automatic detection works across PowerShell, Command Prompt, Git Bash, and Unix shells
+  - Multiple detection strategies: system commands, npm paths, common locations, bundled version
+  - New `detect` command for diagnosing path resolution issues
+  - Enhanced `validate` command with detailed path detection and testing
+
+### Fixed
+- **Windows PowerShell Compatibility**: Resolve ENOENT errors when Claude Code launched from PowerShell
+  - MCP server now properly detects backlog CLI path on Windows regardless of shell environment
+  - Automatic handling of Windows executable extensions (.cmd, .exe, .bat)
+  - Improved spawn options for Windows batch files
+  - Better error messages with troubleshooting guidance
+- Path resolution fallback chain ensures MCP works with global, local, and bundled installations
+- Enhanced configuration validation prevents invalid custom paths from causing failures
+
 ## [0.1.4] - 2025-09-11
 
 ### Fixed

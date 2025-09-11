@@ -133,13 +133,24 @@ program
 				process.exit(1);
 			}
 			
-			// Check if Backlog.md is accessible
+			// Test backlog CLI path detection
 			try {
-				execSync('npx backlog --version', { stdio: 'ignore' });
-				console.log('✅ Backlog.md CLI accessible');
-			} catch {
-				console.warn('⚠️  Backlog.md CLI not found globally');
-				console.log('   The bundled version will be used');
+				const backlogPath = await config.getBacklogCliPath();
+				console.log(`✅ Backlog.md CLI found at: ${backlogPath}`);
+				
+				// Test if the CLI actually works
+				try {
+					execSync(`"${backlogPath}" --version`, { stdio: 'ignore' });
+					console.log('✅ Backlog.md CLI responds correctly');
+				} catch (error: any) {
+					console.error(`❌ Backlog.md CLI found but not working: ${error.message}`);
+					console.log('   Try running manually to diagnose the issue');
+				}
+			} catch (error: any) {
+				console.error('❌ Backlog.md CLI not found');
+				console.log('   Install with: npm install -g backlog.md');
+				console.log('   Or configure path: backlog-mcp config set backlogCliPath "/path/to/backlog"');
+				process.exit(1);
 			}
 			
 			console.log('\n✨ Setup validated successfully!');
@@ -185,6 +196,44 @@ Resources:
 For more information, visit:
 https://github.com/radleta/Backlog.md-mcp
 		`));
+	});
+
+// Detect command - helps diagnose path issues
+program
+	.command('detect')
+	.description('Detect and show Backlog.md CLI installation paths')
+	.action(async () => {
+		console.log('Detecting Backlog.md CLI installations...\n');
+		
+		try {
+			const detectedPath = await config.getBacklogCliPath();
+			console.log(`Current configured/detected path: ${detectedPath}`);
+			
+			// Show current config
+			const customPath = await config.get('backlogCliPath');
+			if (customPath) {
+				console.log(`Configured custom path: ${customPath}`);
+			} else {
+				console.log('No custom path configured (using auto-detection)');
+			}
+			
+			// Test the detected path
+			if (fs.existsSync(detectedPath)) {
+				console.log('✅ Path exists');
+				
+				try {
+					const version = execSync(`"${detectedPath}" --version`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+					console.log(`✅ CLI responds: ${version.trim()}`);
+				} catch (error: any) {
+					console.error('❌ CLI does not respond properly');
+				}
+			} else {
+				console.error('❌ Path does not exist');
+			}
+			
+		} catch (error: any) {
+			console.error('Error during detection:', error.message);
+		}
 	});
 
 // Parse command line arguments
