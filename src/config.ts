@@ -82,7 +82,9 @@ async function findBacklogExecutable(): Promise<string | null> {
 		
 		const result = execSync(`${command} ${executable}`, { 
 			encoding: 'utf8',
-			stdio: ['ignore', 'pipe', 'ignore'] // Suppress stderr
+			stdio: ['ignore', 'pipe', 'ignore'], // Suppress stderr
+			timeout: 2000, // 2 second timeout to prevent hanging
+			windowsHide: true // Prevent Windows popup windows
 		});
 		
 		// Return first match (where/which may return multiple lines)
@@ -98,7 +100,9 @@ async function findBacklogExecutable(): Promise<string | null> {
 	try {
 		const npmRoot = execSync('npm root -g', { 
 			encoding: 'utf8',
-			stdio: ['ignore', 'pipe', 'ignore']
+			stdio: ['ignore', 'pipe', 'ignore'],
+			timeout: 3000, // 3 second timeout for npm command
+			windowsHide: true
 		}).trim();
 		
 		const candidates = isWindows 
