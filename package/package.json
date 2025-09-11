@@ -1,69 +1,70 @@
 {
-	"name": "@radleta/backlog-md-mcp",
-	"version": "0.1.0",
-	"type": "module",
-	"description": "MCP (Model Context Protocol) server for Backlog.md task management - integrate Backlog.md with Claude Code",
-	"keywords": [
-		"mcp",
-		"model-context-protocol",
-		"backlog",
-		"task-management",
-		"claude",
-		"claude-code",
-		"ai-tools",
-		"productivity",
-		"kanban",
-		"sprint-management"
-	],
-	"homepage": "https://github.com/radleta/Backlog.md-mcp#readme",
-	"bugs": {
-		"url": "https://github.com/radleta/Backlog.md-mcp/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/radleta/Backlog.md-mcp.git"
-	},
-	"license": "MIT",
-	"author": {
-		"name": "radleta",
-		"url": "https://github.com/radleta"
-	},
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"bin": {
-		"backlog-mcp": "bin/backlog-mcp",
-		"backlog-mcp-dev": "bin/backlog-mcp-dev"
-	},
-	"files": [
-		"dist/",
-		"bin/",
-		"README.md",
-		"INSTALL.md",
-		"CHANGELOG.md",
-		"LICENSE"
-	],
-	"scripts": {
-		"start": "node dist/server.js",
-		"prepublishOnly": "cd ../source && npm run validate && npm run build",
-		"version": "node ../source/scripts/update-changelog.js $npm_package_version && git add CHANGELOG.md",
-		"postversion": "git push && git push --tags",
-		"pack:dry": "npm pack --dry-run",
-		"size:check": "npm pack --dry-run 2>&1 | grep 'package size' | head -1",
-		"release": "npm run pack:dry && npm run size:check && echo 'Ready for release. Run: npm version [patch|minor|major] && npm publish'"
-	},
-	"dependencies": {
-		"@modelcontextprotocol/sdk": "^0.6.0",
-		"backlog.md": "^1.10.2",
-		"chalk": "^4.1.2",
-		"commander": "^12.0.0",
-		"inquirer": "^8.2.6",
-		"ora": "^5.4.1"
-	},
-	"engines": {
-		"node": ">=18.0.0"
-	},
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/"
-	}
+  "name": "@radleta/backlog-md-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "MCP (Model Context Protocol) server for Backlog.md task management - integrate Backlog.md with Claude Code",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "backlog",
+    "task-management",
+    "claude",
+    "claude-code",
+    "ai-tools",
+    "productivity",
+    "kanban",
+    "sprint-management"
+  ],
+  "homepage": "https://github.com/radleta/Backlog.md-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/radleta/Backlog.md-mcp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radleta/Backlog.md-mcp.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "radleta",
+    "url": "https://github.com/radleta"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "backlog-mcp": "bin/backlog-mcp",
+    "backlog-mcp-dev": "bin/backlog-mcp-dev"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "README.md",
+    "INSTALL.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node dist/server.js",
+    "prepublishOnly": "cd ../source && npm run validate && npm run build",
+    "preversion": "npm run release && mkdir .git",
+    "version": "node ../source/scripts/update-changelog.js $npm_package_version && git add CHANGELOG.md",
+    "postversion": "git push && git push --tags && rm -rd .git",
+    "pack:dry": "npm pack --dry-run",
+    "size:check": "npm pack --dry-run 2>&1 | grep 'package size' | head -1",
+    "release": "npm run pack:dry && npm run size:check && echo 'Ready for release. Run: npm version [patch|minor|major] && npm publish'"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "backlog.md": "^1.10.2",
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }
