@@ -38,7 +38,7 @@
 	"files": [
 		"dist/",
 		"bin/",
-		"npm/README.md",
+		"README",
 		"CHANGELOG.md",
 		"LICENSE"
 	],
