@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2025-09-11
+
 ### Added
 - Comprehensive GitHub Actions documentation (.github/workflows/README.md)
   - Complete CI/CD pipeline documentation for contributors and maintainers
