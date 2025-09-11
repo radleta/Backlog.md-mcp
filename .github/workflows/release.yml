@@ -37,14 +37,10 @@ jobs:
           bun-version: latest
       
       - name: Install dependencies
-        run: |
-          cd source
-          npm ci
+        run: npm ci
       
       - name: Run tests
-        run: |
-          cd source
-          npm test
+        run: npm test
       
       - name: Build project
         run: |
@@ -53,19 +49,16 @@ jobs:
       - name: Set version (manual trigger)
         if: github.event_name == 'workflow_dispatch'
         run: |
-          cd package
           npm version ${{ github.event.inputs.version }} --no-git-tag-version
       
       - name: Create tarball
         run: |
-          cd package
           npm pack
-          mv *.tgz ../backlog-md-mcp.tgz
+          mv *.tgz backlog-md-mcp.tgz
       
       - name: Publish to npm
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          cd package
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

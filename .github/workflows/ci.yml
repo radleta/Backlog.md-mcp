@@ -31,41 +31,28 @@ jobs:
         with:
           bun-version: latest
       
-      - name: Install source dependencies
-        run: |
-          cd source
-          npm ci
+      - name: Install dependencies
+        run: npm ci
       
       - name: Build project
-        run: |
-          cd source
-          npm run build
+        run: npm run build
       
-      - name: Install package dependencies
-        run: |
-          cd package
-          npm ci --production
+      # Dependencies already installed above - package is now consolidated
       
       - name: Run tests
-        run: |
-          cd source
-          npm test
+        run: npm test
       
       - name: Type check
-        run: |
-          cd source
-          npm run typecheck
+        run: npm run typecheck
       
       - name: Lint
-        run: |
-          cd source
-          npm run lint
+        run: npm run lint
       
       - name: Verify build output
         run: |
-          test -f package/dist/cli.js
-          test -f package/dist/server.js
-          test -f package/dist/config.js
+          test -f dist/cli.js
+          test -f dist/server.js
+          test -f dist/config.js
         shell: bash
 
   build-full:
@@ -100,23 +87,16 @@ jobs:
       - name: Run build script (Windows)
         if: runner.os == 'Windows'
         run: |
-          cd source
           npm ci
           npm run build
-          cd ../package
-          npm ci --production
         shell: bash
       
       - name: Test CLI help
-        run: |
-          cd package
-          node dist/cli.js --help
+        run: node dist/cli.js --help
         shell: bash
       
       - name: Test CLI info
-        run: |
-          cd package
-          node dist/cli.js info
+        run: node dist/cli.js info
         shell: bash
 
   validate-package:
@@ -140,27 +120,19 @@ jobs:
       
       - name: Build project
         run: |
-          cd source
           npm ci
           npm run build
       
-      - name: Install package dependencies
-        run: |
-          cd package
-          npm ci --production
+      # Dependencies already installed above - package is now consolidated
       
       - name: Validate package.json
-        run: |
-          cd package
-          npm pack --dry-run
+        run: npm pack --dry-run
       
       - name: Check ES module compatibility
         run: |
-          cd package
           node -e "import('./dist/server.js').then(() => console.log('ES modules working!'))"
       
       - name: Verify MCP server can start
         run: |
-          cd package
           timeout 5s node dist/server.js || true
         shell: bash
