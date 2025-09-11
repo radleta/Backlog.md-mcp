@@ -37,7 +37,9 @@
       "Bash(npm test:*)",
       "Bash(npm audit:*)",
       "Bash(git add:*)",
-      "Bash(npm run pack:dry:*)"
+      "Bash(npm run pack:dry:*)",
+      "Bash(git describe:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
