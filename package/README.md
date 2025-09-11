@@ -2,6 +2,20 @@
 
 An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.com/MrLesk/Backlog.md) task management system, enabling AI assistants like Claude to directly manage tasks and view Kanban boards.
 
+## Table of Contents
+
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
+- [Related Projects](#related-projects)
+- [Support](#support)
+
 ## Features
 
 ### 🛠️ Available Tools
@@ -66,27 +80,29 @@ Beyond the standard Backlog.md functionality, this MCP server adds:
 - **Decision Records**: Create and list architectural decision records
 - **Full CLI Access**: All native Backlog.md commands available through natural language
 
-
 ### 📚 Available Resources
 
+Access project data through `backlog://` URLs:
+
 - `backlog://tasks/all` - View all tasks in markdown format
+- `backlog://tasks/by-priority` - Tasks grouped by priority levels
 - `backlog://board` - Current Kanban board view
-- `backlog://config` - Configuration settings
 - `backlog://drafts/all` - View all draft tasks in markdown format
 - `backlog://docs/all` - View all documentation files
-- `backlog://overview` - Project statistics and overview
-- `backlog://sequences` - Execution sequences computed from task dependencies
 - `backlog://decisions/all` - View all decision records
-- `backlog://tasks/by-priority` - Tasks grouped by priority levels
+- `backlog://sequences` - Execution sequences computed from task dependencies
+- `backlog://overview` - Project statistics and overview
 - `backlog://statistics` - Enhanced project statistics and metrics
+- `backlog://config` - Configuration settings
 
 ## Prerequisites
 
 Before using the MCP server, ensure:
 
-1. **Backlog.md is installed**: The MCP server requires the [Backlog.md CLI](https://github.com/MrLesk/Backlog.md) to be available
-2. **Project initialization**: Your project must have Backlog.md initialized (`backlog init`)
-3. **Working directory**: The MCP server runs commands in the directory where Claude is working
+1. **Node.js 18+**: Required for running the MCP server
+2. **Backlog.md is installed**: The MCP server requires the [Backlog.md CLI](https://github.com/MrLesk/Backlog.md) to be available
+3. **Project initialization**: Your project must have Backlog.md initialized (`backlog init`)
+4. **Working directory**: The MCP server runs commands in the directory where Claude is working
 
 ### Important Notes
 
@@ -99,29 +115,28 @@ Before using the MCP server, ensure:
 - **Initialization**: The `backlog init` command cannot be implemented through MCP as it requires interactive user input. Projects must be initialized manually before using the MCP server.
 - **Interactive Commands**: Any Backlog.md commands that require user interaction are not available through the MCP interface.
 
-### Tool Parameter Details
+### Key Tool Parameters
 
-- **task_create**: 
-  - `title` (required): Task title as a string
-  - `description` (optional): Task description
-  - `status` (optional): Must match your Backlog.md configuration exactly (check with `backlog config get statuses`)
-  - `priority` (optional): "low", "medium", or "high"
-  - `labels` (optional): Array of strings (mapped to `--labels` in CLI)
+Common parameters across tools:
 
-- **task_list**:
-  - `status` (optional): Filter by status or "all" for all tasks
-  - `label` (optional): Filter by a specific label
-  - `priority` (optional): Filter by priority level
+- **taskId**: Task identifier format (e.g., "task-123", "task-001.01" for sub-tasks)
+- **status**: Must match your Backlog.md configuration exactly (check with `backlog config get statuses`)
+- **priority**: "low", "medium", or "high"
+- **labels**: Array of strings for task categorization
+- **dependencies**: Comma-separated task IDs (e.g., "task-001,task-002")
+- **parent**: Parent task ID for creating sub-tasks
+- **ac**: Acceptance criteria as array of strings
 
-- **task_edit**:
-  - `taskId` (required): Task identifier (e.g., "task-123")
-  - `title`, `description`, `status`, `priority` (all optional): New values
+### Essential Tools Reference
 
-- **task_view**:
-  - `taskId` (required): Task identifier to view
+- **task_create**: Create tasks with full support for title, description, status, priority, labels, assignee, plan, notes, acceptance criteria, dependencies, and parent tasks
+- **task_list**: List and filter tasks by status, label, priority, assignee, or parent task
+- **task_edit**: Comprehensive editing including acceptance criteria management (add/remove/check/uncheck)
+- **draft_create/promote**: Create and promote draft tasks to full tasks
+- **board_show/export**: Display and export Kanban boards
+- **config_get/set**: Manage configuration settings
 
-- **task_archive**:
-  - `taskId` (required): Task identifier to archive
+> For complete tool documentation with all parameters, see the [GitHub repository](https://github.com/radleta/Backlog.md-mcp).
 
 ## Installation
 
@@ -159,22 +174,9 @@ For detailed configuration options, see the [Configuration](#configuration) sect
 
 ## Configuration
 
-### Setup
-
-For Claude Code users:
+### Setup Options
 
 ```bash
-# Install the server globally
-npm install -g @radleta/backlog-md-mcp
-
-# Add to Claude Code
-claude mcp add backlog-md -- backlog-mcp start
-```
-
-```bash
-# Install the server globally first
-npm install -g @radleta/backlog-md-mcp
-
 # Add to Claude Code (user scope - available in all projects)
 claude mcp add backlog-md --scope user -- backlog-mcp start
 
