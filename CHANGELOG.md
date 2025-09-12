@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Dynamic Version Detection**: CLI commands now display MCP server version and Backlog.md CLI version with compatibility checking
+  - Added version information to `validate` command showing both MCP server and Backlog.md CLI versions
+  - Enhanced `info` and `detect` commands with comprehensive version compatibility status
+  - Added warning when installed Backlog.md version is newer than supported version
+  - Implemented dynamic version parsing from package.json dependency instead of hardcoded version
+  - Supports all npm version formats (^1.10.2, ~1.10.2, >=1.10.2, etc.) with automatic extraction
+  - Single source of truth - supported version automatically stays in sync with package.json
+
 ## [0.1.8] - 2025-09-11
 
 ### Fixed

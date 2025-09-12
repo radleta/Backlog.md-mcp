@@ -108,6 +108,10 @@ program
 		try {
 			console.log('Validating Backlog.md MCP setup...\n');
 			
+			// Show version information
+			console.log(chalk.blue(`📦 Backlog.md MCP Server v${packageJson.version}`));
+			console.log('');
+			
 			// Show mode information
 			if (isDevelopment) {
 				console.log(chalk.yellow('🧪 Running in DEVELOPMENT mode'));
@@ -138,12 +142,24 @@ program
 				const backlogPath = await config.getBacklogCliPath();
 				console.log(`✅ Backlog.md CLI found at: ${backlogPath}`);
 				
-				// Test if the CLI actually works
-				try {
-					execSync(`"${backlogPath}" --version`, { stdio: 'ignore' });
-					console.log('✅ Backlog.md CLI responds correctly');
-				} catch (error: any) {
-					console.error(`❌ Backlog.md CLI found but not working: ${error.message}`);
+				// Get version and check compatibility
+				const versionCheck = await config.checkVersionCompatibility();
+				
+				if (versionCheck.installedVersion) {
+					console.log(`✅ Backlog.md CLI responds correctly (v${versionCheck.installedVersion})`);
+					
+					// Check version compatibility
+					if (versionCheck.isCompatible) {
+						console.log(`✅ Version compatibility: OK (supported: v${versionCheck.supportedVersion})`);
+					} else if (versionCheck.isNewer) {
+						console.log(chalk.yellow(`⚠️  Backlog.md CLI v${versionCheck.installedVersion} is newer than supported v${versionCheck.supportedVersion}`));
+						console.log(chalk.yellow('   Some features may not work as expected'));
+					} else {
+						console.log(chalk.red(`❌ Backlog.md CLI v${versionCheck.installedVersion} is older than supported v${versionCheck.supportedVersion}`));
+						console.log('   Please update with: npm install -g backlog.md@latest');
+					}
+				} else {
+					console.error('❌ Backlog.md CLI found but version check failed');
 					console.log('   Try running manually to diagnose the issue');
 				}
 			} catch (error: any) {
@@ -167,14 +183,41 @@ program
 program
 	.command('info')
 	.description('Show information about the MCP server')
-	.action(() => {
+	.action(async () => {
 		console.log(chalk.blue(`
 Backlog.md MCP Server v${packageJson.version}
 ================================
 
 This server integrates Backlog.md task management with MCP clients
-using the Model Context Protocol (MCP).
+using the Model Context Protocol (MCP).`));
 
+		// Show version compatibility information
+		try {
+			const versionCheck = await config.checkVersionCompatibility();
+			console.log(`
+Version Information:
+- MCP Server: v${packageJson.version}
+- Backlog.md CLI: ${versionCheck.installedVersion ? `v${versionCheck.installedVersion}` : 'Not found'}
+- Supported Backlog.md: v${versionCheck.supportedVersion}`);
+
+			if (versionCheck.installedVersion && versionCheck.isNewer) {
+				console.log(chalk.yellow('- Status: ⚠️  Newer version detected - some features may not work as expected'));
+			} else if (versionCheck.installedVersion && versionCheck.isCompatible) {
+				console.log(chalk.green('- Status: ✅ Compatible version'));
+			} else if (versionCheck.installedVersion) {
+				console.log(chalk.red('- Status: ❌ Older version - please update'));
+			} else {
+				console.log(chalk.red('- Status: ❌ CLI not found'));
+			}
+		} catch (error) {
+			console.log(`
+Version Information:
+- MCP Server: v${packageJson.version}
+- Backlog.md CLI: Unable to determine
+- Status: ❓ Check installation with 'backlog-mcp validate'`);
+		}
+
+		console.log(chalk.blue(`
 Available Tools:
 - task_create    Create new tasks
 - task_list      List and filter tasks
@@ -224,6 +267,18 @@ program
 				try {
 					const version = execSync(`"${detectedPath}" --version`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
 					console.log(`✅ CLI responds: ${version.trim()}`);
+					
+					// Show compatibility check
+					const versionCheck = await config.checkVersionCompatibility();
+					if (versionCheck.installedVersion) {
+						if (versionCheck.isCompatible) {
+							console.log(`✅ Version compatibility: OK (supported: v${versionCheck.supportedVersion})`);
+						} else if (versionCheck.isNewer) {
+							console.log(chalk.yellow(`⚠️  Version v${versionCheck.installedVersion} is newer than supported v${versionCheck.supportedVersion}`));
+						} else {
+							console.log(chalk.red(`❌ Version v${versionCheck.installedVersion} is older than supported v${versionCheck.supportedVersion}`));
+						}
+					}
 				} catch (error: any) {
 					console.error('❌ CLI does not respond properly');
 				}

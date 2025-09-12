@@ -6,6 +6,38 @@ import { existsSync } from 'fs';
 import { execSync } from 'child_process';
 
 /**
+ * Parse version from npm dependency string (handles ^, ~, >=, etc.)
+ */
+function parseVersionFromDependency(dependencyString: string): string {
+	// Remove common npm version prefixes and extract the version number
+	const versionMatch = dependencyString.match(/(\d+\.\d+\.\d+)/);
+	return versionMatch?.[1] ?? dependencyString.replace(/^[\^~>=<\s]+/, '');
+}
+
+/**
+ * Get the supported Backlog.md version from package.json
+ */
+async function getSupportedBacklogVersion(): Promise<string> {
+	try {
+		const __dirname = path.dirname(fileURLToPath(import.meta.url));
+		const packageJsonPath = path.join(__dirname, '..', 'package.json');
+		const packageContent = await fs.readFile(packageJsonPath, 'utf-8');
+		const packageJson = JSON.parse(packageContent);
+		
+		const backlogDependency = packageJson.dependencies?.['backlog.md'];
+		if (backlogDependency) {
+			return parseVersionFromDependency(backlogDependency);
+		}
+		
+		// Fallback to hardcoded version if not found in dependencies
+		return '1.10.2';
+	} catch (error) {
+		// Fallback to hardcoded version if package.json can't be read
+		return '1.10.2';
+	}
+}
+
+/**
  * Get the configuration directory path based on environment
  */
 function getConfigDir(): string {
@@ -214,6 +246,77 @@ export function isBacklogInitialized(projectPath: string = process.cwd()): boole
 	}
 	
 	return false;
+}
+
+/**
+ * Get the version of the installed Backlog.md CLI
+ */
+export async function getBacklogVersion(): Promise<string | null> {
+	try {
+		const backlogPath = await getBacklogCliPath();
+		const result = execSync(`"${backlogPath}" --version`, { 
+			encoding: 'utf8', 
+			stdio: ['ignore', 'pipe', 'ignore'],
+			timeout: 5000,
+			windowsHide: true
+		});
+		
+		// Extract version number from output (e.g. "1.10.2" from various formats)
+		const versionMatch = result.trim().match(/(\d+\.\d+\.\d+)/);
+		return versionMatch?.[1] ?? result.trim();
+	} catch (error) {
+		return null;
+	}
+}
+
+/**
+ * Compare two semantic version strings
+ * Returns: 1 if version1 > version2, -1 if version1 < version2, 0 if equal
+ */
+function compareVersions(version1: string, version2: string): number {
+	const parts1 = version1.split('.').map(n => parseInt(n, 10));
+	const parts2 = version2.split('.').map(n => parseInt(n, 10));
+	
+	for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+		const part1 = parts1[i] || 0;
+		const part2 = parts2[i] || 0;
+		
+		if (part1 > part2) return 1;
+		if (part1 < part2) return -1;
+	}
+	
+	return 0;
+}
+
+/**
+ * Check version compatibility with supported Backlog.md version
+ */
+export async function checkVersionCompatibility(): Promise<{
+	installedVersion: string | null;
+	supportedVersion: string;
+	isCompatible: boolean;
+	isNewer: boolean;
+}> {
+	const supportedVersion = await getSupportedBacklogVersion();
+	const installedVersion = await getBacklogVersion();
+	
+	if (!installedVersion) {
+		return {
+			installedVersion: null,
+			supportedVersion,
+			isCompatible: false,
+			isNewer: false
+		};
+	}
+	
+	const comparison = compareVersions(installedVersion, supportedVersion);
+	
+	return {
+		installedVersion,
+		supportedVersion,
+		isCompatible: comparison <= 0, // Compatible if same or older
+		isNewer: comparison > 0
+	};
 }
 
 
