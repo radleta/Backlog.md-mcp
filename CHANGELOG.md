@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - 2025-09-12
+
 ### Added
 - **Dynamic Version Detection**: CLI commands now display MCP server version and Backlog.md CLI version with compatibility checking
   - Added version information to `validate` command showing both MCP server and Backlog.md CLI versions
