@@ -618,39 +618,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
-      name: "cleanup",
-      description: "Move old completed tasks to archive",
-      inputSchema: {
-        type: "object",
-        properties: {},
-      },
-    },
-    {
-      name: "browser",
-      description: "Launch web interface",
-      inputSchema: {
-        type: "object",
-        properties: {
-          port: {
-            type: "number",
-            description: "Port number for web server (optional)",
-          },
-          noOpen: {
-            type: "boolean",
-            description: "Don't open browser automatically",
-          },
-        },
-      },
-    },
-    {
-      name: "agents_update",
-      description: "Update agent instruction files",
-      inputSchema: {
-        type: "object",
-        properties: {},
-      },
-    },
-    {
       name: "sequence_list",
       description:
         "View task execution sequences based on dependencies. Shows which tasks can run in parallel and which must wait. Essential for understanding workflow order after setting dependencies",
@@ -1185,27 +1152,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 
       case "overview": {
         const result = await runBacklogCommand(["overview"]);
-        return { content: [{ type: "text", text: result }] };
-      }
-
-      case "cleanup": {
-        const result = await runBacklogCommand(["cleanup"]);
-        return { content: [{ type: "text", text: result }] };
-      }
-
-      case "browser": {
-        const cmdArgs = ["browser"];
-        if (args.port) cmdArgs.push("--port", args.port.toString());
-        if (args.noOpen) cmdArgs.push("--no-open");
-        const result = await runBacklogCommand(cmdArgs);
-        return { content: [{ type: "text", text: result }] };
-      }
-
-      case "agents_update": {
-        const result = await runBacklogCommand([
-          "agents",
-          "--update-instructions",
-        ]);
         return { content: [{ type: "text", text: result }] };
       }
 

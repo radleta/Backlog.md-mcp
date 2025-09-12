@@ -105,7 +105,7 @@ export function validateArgumentsEnhanced(args: string[]): { valid: boolean, rea
       if (arg.match(/^task-\d+(\.\d+)*$/)) {
         // Valid task ID format
         continue;
-      } else if (['task', 'edit', 'create', 'view', 'archive', 'list', 'draft', 'promote', 'demote', 'board', 'config', 'get', 'set', 'doc', 'decision', 'overview', 'cleanup', 'sequence', 'browser', 'agents', 'update', '--plain'].includes(arg)) {
+      } else if (['task', 'edit', 'create', 'view', 'archive', 'list', 'draft', 'promote', 'demote', 'board', 'config', 'get', 'set', 'doc', 'decision', 'overview', 'sequence', '--plain'].includes(arg)) {
         // Known safe commands and flags
         continue;
       } else {

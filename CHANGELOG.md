@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Supports all npm version formats (^1.10.2, ~1.10.2, >=1.10.2, etc.) with automatic extraction
   - Single source of truth - supported version automatically stays in sync with package.json
 
+### Removed
+- **Interactive Commands**: Removed CLI commands that would cause the MCP wrapper to hang due to user interaction or long-running processes
+  - Removed `browser` tool - starts a long-running web server that would never return control to MCP client
+  - Removed `cleanup` tool - uses interactive prompts for task age selection and cleanup confirmation
+  - Removed `agents_update` tool - modifies local agent instruction files, inappropriate for MCP servers
+  - Updated security validation to remove references to these commands
+  - Enhanced documentation with comprehensive explanation of MCP server limitations for interactive commands
+
 ## [0.1.8] - 2025-09-11
 
 ### Fixed

@@ -50,7 +50,6 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
   - `board_show` - Display the Kanban board
   - `board_export` - Export Kanban board to markdown with options for custom filename, force overwrite, README integration, and version tagging
   - `overview` - Show project statistics and overview
-  - `cleanup` - Move old completed tasks to archive folder
   - `sequence_list` - List execution sequences computed from task dependencies
 
 - **Configuration**
@@ -58,9 +57,6 @@ An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.co
   - `config_set` - Set configuration values
   - `config_list` - List all configuration values
 
-- **Web Interface & Utilities**
-  - `browser` - Launch web interface with optional port and browser settings
-  - `agents_update` - Update agent instruction files (.cursorrules, CLAUDE.md, AGENTS.md, etc.)
 
 ## Design Philosophy
 
@@ -112,8 +108,12 @@ Before using the MCP server, ensure:
 
 ### Limitations
 
-- **Initialization**: The `backlog init` command cannot be implemented through MCP as it requires interactive user input. Projects must be initialized manually before using the MCP server.
-- **Interactive Commands**: Any Backlog.md commands that require user interaction are not available through the MCP interface.
+- **Interactive Commands**: Commands that require user interaction cannot be implemented through MCP:
+  - `backlog init` - Requires interactive project setup prompts (initialize manually first)
+  - `backlog browser` - Starts a long-running web server that would hang the MCP wrapper  
+  - `backlog cleanup` - Uses interactive prompts to select task age and confirm cleanup operations
+  - `backlog agents --update-instructions` - Modifies local agent instruction files, not appropriate for MCP servers
+  - Any other CLI commands that use prompts or run indefinitely
 
 ### Key Tool Parameters
 

@@ -24,11 +24,14 @@ The Backlog.md MCP Server is designed as a complete wrapper around the [Backlog.
 
 ### Design Philosophy
 
-- **Complete CLI Coverage**: Exposes all available Backlog.md CLI commands through MCP
+- **Complete CLI Coverage**: Exposes all non-interactive Backlog.md CLI commands through MCP
 - **Read-Only Enhancements**: Provides additional helpers that don't modify data
 - **Write Operation Integrity**: All modifications go through official CLI commands
 - **No Custom Write Logic**: Avoids breaking Backlog.md's internal implementation
-- **Non-Interactive Operations**: Commands requiring user input cannot be implemented
+- **Non-Interactive Operations**: Commands requiring user input or running indefinitely cannot be implemented in MCP servers
+  - Interactive prompts would hang the MCP wrapper waiting for input that cannot be provided
+  - Long-running processes (like web servers) would never return control to the MCP client
+  - The wrapper automatically uses `--plain` flags where available to ensure non-interactive execution
 
 ### Project Structure
 
@@ -91,7 +94,6 @@ Backlog.md-mcp/
   - `board_show` - Display the Kanban board
   - `board_export` - Export Kanban board to markdown with options for custom filename, force overwrite, README integration, and version tagging
   - `overview` - Show project statistics and overview
-  - `cleanup` - Move old completed tasks to archive folder
   - `sequence_list` - List execution sequences computed from task dependencies
 
 - **Configuration**
@@ -99,9 +101,6 @@ Backlog.md-mcp/
   - `config_set` - Set configuration values
   - `config_list` - List all configuration values
 
-- **Web Interface & Utilities**
-  - `browser` - Launch web interface with optional port and browser settings
-  - `agents_update` - Update agent instruction files (.cursorrules, CLAUDE.md, AGENTS.md, etc.)
 
 ### 📚 Available Resources
 
@@ -467,6 +466,15 @@ tail -f ~/.config/backlog-mcp-dev/logs/server.log
 ### Known Issues
 
 - **Multi-instance Race Conditions**: Multiple Claude instances using the same MCP server on the same project may cause file conflicts and data corruption. See [task-001](backlog/tasks/task-001%20-%20File-operation-race-conditions-with-multiple-MCP-instances.md) for details and planned fixes.
+
+### Limitations
+
+- **Interactive Commands Not Supported**: Commands that require user interaction cannot be implemented through MCP:
+  - `backlog init` - Requires interactive project setup prompts
+  - `backlog browser` - Starts a long-running web server that would hang the MCP wrapper
+  - `backlog cleanup` - Uses interactive prompts to select task age and confirm cleanup operations
+  - `backlog agents --update-instructions` - Modifies local agent instruction files, not appropriate for MCP servers
+  - Any other CLI commands that use prompts or run indefinitely
 
 ## Contributing
 
