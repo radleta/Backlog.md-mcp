@@ -22,7 +22,7 @@ When helping with this project, identify which audience you're serving:
 
 When using the Backlog.md tools, always consider:
 1. **Acceptance Criteria** - Define measurable completion conditions
-2. **Dependencies** - Set execution order between related tasks  
+2. **Dependencies** - Set execution order between related tasks
 3. **Sub-tasks** - Break complex work into manageable pieces
 4. **Priority** - Indicate task importance (high/medium/low)
 
@@ -49,3 +49,4 @@ Most operations are direct CLI pass-through for data integrity.
 3. Interactive commands (like `backlog init`) cannot be implemented through MCP
 4. For Claude Code setup, users should use: `claude mcp add backlog-md -- backlog-mcp start`
 5. Development documentation is now in .github/README.md, user documentation is in README.md
+6. You can actively test the MCP server in your current session using `backlog-mcp-dev` mcp commands. If it doesn't exist, ask the user to install it via `claude mcp add backlog-md-dev -- /path/to/local/repo/bin/backlog-mcp-dev.js start`
