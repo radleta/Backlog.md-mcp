@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Shell Character Escaping**: Fixed issue where MCP server incorrectly rejected special characters instead of escaping them
+  - Removed overly restrictive `validateArgumentsEnhanced` validation that blocked legitimate user input
+  - Enhanced `escapeShellArg` function to handle all shell metacharacters including newlines, tabs, brackets
+  - Added minimal validation only for obvious command injection attempts (rm, del, shutdown, etc.)
+  - Updated security tests to verify escaping behavior rather than rejection
+  - Users can now include any characters (parentheses, quotes, etc.) in task notes and descriptions
+  - Maintains security through proper shell escaping while preserving user content
+  - Fixes error: "Text field '--notes' contains dangerous shell characters" for legitimate input
+
 ## [0.1.9] - 2025-09-12
 
 ### Added

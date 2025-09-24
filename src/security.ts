@@ -130,20 +130,28 @@ export function validateArgumentsEnhanced(args: string[]): { valid: boolean, rea
  * @returns The safely escaped argument
  */
 export function escapeShellArg(arg: string): string {
+  // If empty string, return empty quotes to preserve it as an argument
+  if (arg === '') {
+    return process.platform === 'win32' ? '""' : "''";
+  }
+
   // If argument has no special characters or spaces, return as-is
-  if (!arg.match(/[\s;|&`$()\\'"]/)) {
+  // Extended check for more shell metacharacters including newlines, tabs, etc.
+  if (!arg.match(/[\s;|&`$()\\'"<>=!*?[\]{}~\r\n\t]/)) {
     return arg;
   }
-  
+
   // On Windows (PowerShell/cmd), use double quotes and escape internal quotes
   if (process.platform === 'win32') {
     // Escape any existing double quotes by doubling them
-    const escaped = arg.replace(/"/g, '""');
+    // Also handle backslashes before quotes properly
+    const escaped = arg.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     return `"${escaped}"`;
   }
-  
-  // On Unix systems, use single quotes and escape internal single quotes
-  return `'${arg.replace(/'/g, "\\'")}'`;
+
+  // On Unix systems, use single quotes for maximum safety
+  // Single quotes preserve everything literally except other single quotes
+  return `'${arg.replace(/'/g, "'\"'\"'")}'`;
 }
 
 /**

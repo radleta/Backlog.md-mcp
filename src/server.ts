@@ -11,7 +11,7 @@ import { spawn } from "child_process";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { getBacklogCliPath, isBacklogInitialized } from "./config.js";
-import { escapeShellArg, validateArgumentsEnhanced, sanitizePath, isPathAllowed } from "./security.js";
+import { escapeShellArg, sanitizePath, isPathAllowed } from "./security.js";
 
 // Initialize MCP server
 export const server = new Server(
@@ -156,10 +156,21 @@ async function runBacklogCommand(args: string[]): Promise<string> {
     );
   }
 
-  // Validate arguments for security using enhanced validation
-  const validation = validateArgumentsEnhanced(args);
-  if (!validation.valid) {
-    throw new Error(validation.reason || 'Invalid command arguments detected');
+  // Basic security check - only block obvious command injection attempts
+  // All other input will be safely escaped by escapeShellArg()
+  for (const arg of args) {
+    // Block obvious command injection patterns - be specific to avoid false positives
+    const injectionPatterns = [
+      /;\s*(rm|del|format|shutdown|reboot|halt|poweroff|init\s+0)/i,
+      /&&\s*(rm|del|format|shutdown|reboot|halt|poweroff|init\s+0)/i,
+      /\|\s*(rm|del|format|shutdown|reboot|halt|poweroff|init\s+0)/i,
+      /`[^`]*rm[^`]*`/i,
+      /\$\([^)]*rm[^)]*\)/i
+    ];
+
+    if (injectionPatterns.some(pattern => pattern.test(arg))) {
+      throw new Error('Command injection attempt detected');
+    }
   }
 
   try {
