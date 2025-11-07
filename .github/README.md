@@ -1,5 +1,12 @@
 # Backlog.md MCP Server
 
+---
+
+> ⚙️ **Built with AI-Paired Development**
+> This project was rapidly developed using AI-assisted workflows (Claude Code, Gemini, ChatGPT) under my direction. While it contains known bugs and rough edges due to scope and velocity, it reflects real-world utility and has been validated through integration tests and end-user use. Architecture and system behavior were guided and owned by me.
+
+---
+
 An MCP (Model Context Protocol) server that wraps [Backlog.md](https://github.com/MrLesk/Backlog.md) task management system, enabling AI assistants like Claude to directly manage tasks and view Kanban boards.
 
 > **📦 For Users**: Install from npm: `npm install -g @radleta/backlog-md-mcp`  
